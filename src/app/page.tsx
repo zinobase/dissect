@@ -1,23 +1,11 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { 
   Scissors, 
-  Sparkles, 
-  Flame, 
-  TrendingUp, 
-  Layers, 
   ArrowRight, 
-  Cpu, 
-  Clock, 
-  CheckCircle2, 
-  Play, 
-  Zap,
-  Volume2,
-  Sliders,
-  Smartphone
+  TrendingUp
 } from "lucide-react";
 import { WaveformPulseBackground } from "@/components/WaveformPulseBackground";
 import { LandingHeader } from "@/components/LandingHeader";
@@ -26,45 +14,36 @@ import { PhoneViewportMockup } from "@/components/PhoneViewportMockup";
 const RETENTION_MILESTONES = [
   {
     second: "0s - 3s",
-    title: "Viral Pattern Interrupt",
-    rule: "First 3-Second Retention Law",
+    title: "Pattern Interrupt",
+    rule: "First 3-Second Rule",
     impact: "+48% Hook Survival",
-    description: "Whisper-v3 detects the speaker opening sentence and instantly triggers Livepeer AI B-Roll to inject a contextual high-impact visual match before the viewer can swipe."
+    description: "Detects the opening sentence and cuts in contextual B-roll before viewer disengagement."
   },
   {
     second: "6s",
-    title: "Dynamic Kinetic Re-Zoom",
-    rule: "Frame Velocity Modulation",
+    title: "Dynamic Re-Zoom",
+    rule: "Velocity Modulation",
     impact: "+22% Attention Reset",
-    description: "Camera crop transitions smoothly from wide 9:16 to tight punch-in centered on facial emotion, resetting visual fatigue."
+    description: "Modulates camera framing from wide to punch-in, resetting visual fatigue."
   },
   {
     second: "12s",
-    title: "Word-Level Color Punch",
-    rule: "Bebas Kinetic Captions",
+    title: "Keyword Accent",
+    rule: "Kinetic Captions",
     impact: "+18% Comprehension",
-    description: "Key high-sentiment keywords are color-coded in acid lime and electric cyan with zero frame delay."
+    description: "High-sentiment keywords highlight dynamically with zero frame latency."
   },
   {
     second: "24s",
-    title: "Loop Handoff Seamless Seam",
-    rule: "Infinite Loop Retention",
+    title: "Seamless Loop",
+    rule: "Continuous Replay",
     impact: "+35% Re-watch Rate",
-    description: "The concluding sentence seamlessly completes the grammar of the opening hook, encouraging algorithmic re-plays."
+    description: "Closing sentence connects directly into the opening hook for continuous loop retention."
   }
 ];
 
 export default function DissectLandingPage() {
-  const router = useRouter();
-  const [ingestUrl, setIngestUrl] = useState("Accelerated Computing & Physical AI Factories");
   const [selectedMilestone, setSelectedMilestone] = useState(0);
-
-  const handleLaunchStudio = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!ingestUrl.trim()) return;
-    playClickSound();
-    router.push(`/studio?url=${encodeURIComponent(ingestUrl.trim())}`);
-  };
 
   const playClickSound = () => {
     try {
@@ -81,137 +60,90 @@ export default function DissectLandingPage() {
       osc.start();
       osc.stop(ctx.currentTime + 0.04);
     } catch {
-      // Ignore audio error if blocked by browser policy
+      // Audio policy safe
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-[#08090e] text-zinc-100 overflow-x-hidden selection:bg-[#84cc16]/30 selection:text-white">
-      {/* 60fps Living Audio Spectral Ribbon Canvas */}
+    <div className="relative min-h-screen bg-[#07080d] text-zinc-100 overflow-x-hidden selection:bg-[#84cc16]/30 selection:text-white">
+      {/* 60fps Audio Ribbon Canvas */}
       <WaveformPulseBackground />
 
       {/* Header */}
       <LandingHeader />
 
-      <main className="relative z-10">
+      <main className="relative z-10 pt-20">
         {/* HERO SECTION */}
-        <section className="relative pt-24 pb-20 sm:pt-32 sm:pb-28 px-4 sm:px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <section className="pt-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             
-            {/* Left Column: Monolithic Kinetic Copy */}
-            <div className="lg:col-span-7 text-left space-y-6">
+            {/* Left Column */}
+            <div className="lg:col-span-7 space-y-6 text-left">
               
               {/* Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[#84cc16]/30 text-[11px] font-mono text-[#84cc16] backdrop-blur-md shadow-[0_0_20px_rgba(132,204,22,0.15)]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#84cc16]/10 border border-[#84cc16]/30 text-[10px] font-mono text-[#84cc16] tracking-wider uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
-                <span className="tracking-wider uppercase">AUTONOMOUS B-ROLL RE-CUTTER</span>
+                <span>Autonomous B-Roll Re-Cutter · 9:16 Vertical Engine</span>
               </div>
 
-              {/* Master Headline in Outfit Black */}
-              <h1 className="font-kinetic font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-white leading-[0.88] text-balance">
-                DISSECT LONG TALKS INTO <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#84cc16] via-[#06b6d4] to-[#f43f5e]">
-                  VIRAL 9:16 GOLD.
-                </span>
+              {/* Master Headline */}
+              <h1 className="font-kinetic font-black text-3xl sm:text-5xl md:text-6xl text-white tracking-tight leading-[0.92] text-balance">
+                RE-CUT LONG TALKS INTO <br />
+                <span className="text-[#84cc16] uppercase">HIGH-RETENTION SHORTS.</span>
               </h1>
 
-              {/* Subtext */}
-              <p className="max-w-xl text-base sm:text-lg text-zinc-400 font-sans leading-relaxed text-balance">
-                Turn 60-minute podcast monologues into 10 high-retention vertical shorts. Dissect uses Whisper-v3 
-                timestamp intelligence to autonomously inject generative AI B-roll every 3 seconds.
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base text-zinc-400 font-sans leading-relaxed max-w-xl text-balance">
+                Dissect analyzes spoken cadence, detects visual dead zones, and cuts in contextually matched 9:16 cinematic B-roll on decentralized Livepeer GPU nodes.
               </p>
 
-              {/* Interactive Ingest Input Bar for User Input */}
-              <div className="p-3.5 rounded-2xl bg-[#0d101a]/95 border border-[#84cc16]/35 shadow-[0_0_35px_rgba(132,204,22,0.15)] max-w-xl space-y-2.5">
-                <div className="text-[10px] font-mono text-zinc-400 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-white font-bold">
-                    <Sparkles className="w-3 h-3 text-[#84cc16]" />
-                    <span>Input Your Longform Video:</span>
-                  </span>
-                  <span className="text-[#84cc16]">Whisper-v3 + Livepeer AI</span>
+              {/* Telemetry Indicator Strip */}
+              <div className="grid grid-cols-3 gap-3 p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-xs max-w-xl">
+                <div>
+                  <span className="text-lg sm:text-xl font-kinetic font-black text-white block">3.0s</span>
+                  <span className="text-[9px] text-zinc-400 uppercase">Cut Frequency</span>
                 </div>
-
-                <form onSubmit={handleLaunchStudio} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={ingestUrl}
-                    onChange={(e) => setIngestUrl(e.target.value)}
-                    placeholder="Enter lecture or keynote topic, speech transcript, or YouTube URL..."
-                    className="flex-1 bg-black/60 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#84cc16] focus:outline-none placeholder:text-zinc-600"
-                  />
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#84cc16] to-[#06b6d4] text-black font-heading font-bold text-xs hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5 shrink-0 shadow-md cursor-pointer"
-                  >
-                    <span>Dissect</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-
-                <div className="flex items-center justify-between text-[9px] font-mono text-zinc-500 pt-0.5">
-                  <span>Quick Test Topics:</span>
-                  <div className="flex items-center gap-2 text-zinc-400">
-                    <button
-                      onClick={() => setIngestUrl("Accelerated Computing & Physical AI Factories")}
-                      className="hover:text-[#84cc16] underline transition-colors"
-                    >
-                      Physical AI
-                    </button>
-                    <span>·</span>
-                    <button
-                      onClick={() => setIngestUrl("Autonomous Neural Vision & Software 2.0")}
-                      className="hover:text-[#84cc16] underline transition-colors"
-                    >
-                      Robotic Vision
-                    </button>
-                    <span>·</span>
-                    <button
-                      onClick={() => setIngestUrl("Decentralized Compute & Foundation Model Scaling")}
-                      className="hover:text-[#84cc16] underline transition-colors"
-                    >
-                      Decentralized Compute
-                    </button>
-                  </div>
+                <div>
+                  <span className="text-lg sm:text-xl font-kinetic font-black text-[#84cc16] block">91.4%</span>
+                  <span className="text-[9px] text-zinc-400 uppercase">Avg Completion</span>
+                </div>
+                <div>
+                  <span className="text-lg sm:text-xl font-kinetic font-black text-[#06b6d4] block">&lt;2.4s</span>
+                  <span className="text-[9px] text-zinc-400 uppercase">B-Roll Latency</span>
                 </div>
               </div>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <Link
                   href="/studio"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl text-sm font-heading font-bold text-black bg-gradient-to-r from-[#84cc16] to-[#06b6d4] hover:brightness-110 transition-all shadow-[0_0_35px_rgba(132,204,22,0.3)] group"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-xs font-heading font-bold text-black bg-[#84cc16] hover:bg-[#a3e635] active:scale-95 transition-all shadow-[0_0_25px_rgba(132,204,22,0.3)] cursor-pointer"
                 >
-                  <span>Launch Dissect Studio</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <span>Open Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
 
                 <a
                   href="#retention"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm font-heading font-semibold text-zinc-200 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all backdrop-blur-md"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-xs font-mono text-zinc-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 transition-colors cursor-pointer"
                 >
-                  <TrendingUp className="w-4 h-4 text-[#84cc16]" />
-                  <span>The 3-Second Retention Law</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-[#84cc16]" />
+                  <span>Retention Analytics</span>
                 </a>
               </div>
 
-              {/* Stat Strip */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/5 font-mono text-xs">
-                <div>
-                  <span className="text-xl sm:text-2xl font-kinetic font-black text-white block">91.4%</span>
-                  <span className="text-[10px] text-zinc-400 uppercase">Avg 30s Retention</span>
-                </div>
-                <div>
-                  <span className="text-xl sm:text-2xl font-kinetic font-black text-[#84cc16] block">3.0s</span>
-                  <span className="text-[10px] text-zinc-400 uppercase">B-Roll Cut Frequency</span>
-                </div>
-                <div>
-                  <span className="text-xl sm:text-2xl font-kinetic font-black text-[#06b6d4] block">10x</span>
-                  <span className="text-[10px] text-zinc-400 uppercase">Speed vs Manual Editors</span>
-                </div>
+              {/* Supported Platforms Strip */}
+              <div className="flex items-center gap-3 text-[10px] font-mono text-zinc-500 pt-1">
+                <span className="text-zinc-400 uppercase font-semibold">Safe Zones:</span>
+                <span className="text-zinc-300">TikTok 9:16</span>
+                <span>·</span>
+                <span className="text-zinc-300">Instagram Reels</span>
+                <span>·</span>
+                <span className="text-zinc-300">YouTube Shorts</span>
               </div>
             </div>
 
-            {/* Right Column: Interactive Phone Mockup */}
+            {/* Right Column: Live Phone Viewport */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <PhoneViewportMockup />
             </div>
@@ -219,23 +151,23 @@ export default function DissectLandingPage() {
           </div>
         </section>
 
-        {/* INTERACTIVE RETENTION ENGINE SECTION */}
-        <section id="retention" className="py-20 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/5">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase text-[#84cc16] tracking-wider mb-2">
-              <Flame className="w-3.5 h-3.5" />
-              <span>The Attention Economy Curve</span>
+        {/* RETENTION ANALYSIS SECTION */}
+        <section id="retention" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/10">
+          <div className="text-left mb-8">
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-[#84cc16] tracking-wider mb-1">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Retention Analysis</span>
             </div>
-            <h2 className="font-kinetic font-black text-3xl sm:text-5xl text-white tracking-tight">
-              Why Traditional Talking Heads Fail
+            <h2 className="font-kinetic font-black text-2xl sm:text-3xl text-white tracking-tight">
+              Viewer Drop-off Dynamics
             </h2>
-            <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto mt-2 font-sans">
-              TikTok and Instagram Reels algorithms penalize static footage. If visual stimuli don't refresh within 3 seconds, 72% of viewers swipe.
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mt-1 font-sans">
+              When camera framing stays static past three seconds, viewer completion drops precipitously.
             </p>
           </div>
 
-          {/* Interactive Milestone Checkpoints */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Interactive Checkpoints */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
             {RETENTION_MILESTONES.map((m, idx) => {
               const isSelected = selectedMilestone === idx;
               return (
@@ -245,19 +177,19 @@ export default function DissectLandingPage() {
                     playClickSound();
                     setSelectedMilestone(idx);
                   }}
-                  className={`text-left p-5 rounded-2xl border transition-all ${
+                  className={`text-left p-4 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#84cc16]/10 border-[#84cc16]/50 shadow-[0_0_25px_rgba(132,204,22,0.15)]"
+                      ? "bg-[#84cc16]/10 border-[#84cc16]/50 shadow-[0_0_15px_rgba(132,204,22,0.12)]"
                       : "bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2 font-mono text-xs">
+                  <div className="flex items-center justify-between mb-1.5 font-mono text-xs">
                     <span className="text-[#84cc16] font-bold">{m.second}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-zinc-300">{m.impact}</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-300">{m.impact}</span>
                   </div>
-                  <h3 className="font-heading font-bold text-base text-white mb-1">{m.title}</h3>
-                  <span className="text-[11px] font-mono text-zinc-500 block uppercase mb-2">{m.rule}</span>
-                  <p className="text-xs text-zinc-400 font-sans line-clamp-3 leading-relaxed">
+                  <h3 className="font-heading font-semibold text-xs text-white mb-0.5">{m.title}</h3>
+                  <span className="text-[10px] font-mono text-zinc-500 block uppercase mb-1.5">{m.rule}</span>
+                  <p className="text-[11px] text-zinc-400 font-sans line-clamp-3 leading-relaxed">
                     {m.description}
                   </p>
                 </button>
@@ -265,35 +197,35 @@ export default function DissectLandingPage() {
             })}
           </div>
 
-          {/* Retention Comparison Visualizer */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#0e1017]/90 border border-white/10 backdrop-blur-md">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Retention Comparison */}
+          <div className="p-5 sm:p-6 rounded-xl bg-[#090b10] border border-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              {/* Unedited Talking Head */}
-              <div className="p-5 rounded-xl bg-red-950/10 border border-red-500/20">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-mono uppercase text-red-400 font-semibold">Uncut Monologue</span>
-                  <span className="text-xs font-mono text-red-400">14% 30s Completion</span>
+              {/* Static Monologue */}
+              <div className="p-4 rounded-lg bg-red-950/15 border border-red-500/25 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase text-red-400 font-semibold">Static Monologue</span>
+                  <span className="text-xs font-mono text-red-400 font-bold">14% Completion</span>
                 </div>
-                <div className="w-full h-3 rounded-full bg-red-950/50 overflow-hidden mb-3">
+                <div className="w-full h-2 rounded-full bg-red-950/50 overflow-hidden">
                   <div className="w-[14%] h-full bg-red-500" />
                 </div>
-                <p className="text-xs text-zinc-400 font-sans">
-                  Monotonous visual framing triggers rapid scroll instinct. Algorithmic distribution halts within 200 impressions.
+                <p className="text-[11px] text-zinc-400 font-sans">
+                  Monotonous visual framing triggers thumb swipes within the first five seconds.
                 </p>
               </div>
 
-              {/* Dissect Generative Cut */}
-              <div className="p-5 rounded-xl bg-[#84cc16]/10 border border-[#84cc16]/30">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-mono uppercase text-[#84cc16] font-semibold">Dissect AI Re-Cut</span>
-                  <span className="text-xs font-mono text-[#84cc16]">91% 30s Completion</span>
+              {/* Dissect Re-Cut */}
+              <div className="p-4 rounded-lg bg-[#84cc16]/10 border border-[#84cc16]/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase text-[#84cc16] font-semibold">Dissect Re-Cut</span>
+                  <span className="text-xs font-mono text-[#84cc16] font-bold">91.4% Completion</span>
                 </div>
-                <div className="w-full h-3 rounded-full bg-emerald-950/50 overflow-hidden mb-3">
-                  <div className="w-[91%] h-full bg-gradient-to-r from-[#84cc16] to-[#06b6d4]" />
+                <div className="w-full h-2 rounded-full bg-emerald-950/50 overflow-hidden">
+                  <div className="w-[91.4%] h-full bg-gradient-to-r from-[#84cc16] to-[#06b6d4]" />
                 </div>
-                <p className="text-xs text-zinc-400 font-sans">
-                  generative AI B-roll cut-ins keep ocular dopamine constant. Viewer completion signals high value to discovery algorithms.
+                <p className="text-[11px] text-zinc-400 font-sans">
+                  Contextual B-roll cut-ins maintain engagement through the final loop seam.
                 </p>
               </div>
 
@@ -301,75 +233,108 @@ export default function DissectLandingPage() {
           </div>
         </section>
 
-        {/* 3-TRACK LIVEPEER PIPELINE */}
-        <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/5">
-          <div className="text-center mb-12">
-            <h2 className="font-kinetic font-black text-3xl sm:text-5xl text-white tracking-tight">
-              The 3-Track Livepeer Pipeline
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto mt-2 font-sans">
-              Three autonomous intelligence streams orchestrate your vertical cut in parallel.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-[#84cc16]/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center justify-center text-[#84cc16] mb-4">
-                <Volume2 className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-bold text-lg text-white mb-2">Track 1: Whisper-v3 Ingestion</h3>
-              <p className="text-xs sm:text-sm text-zinc-400 font-sans leading-relaxed">
-                Processes speech audio into millisecond-accurate token timestamps, detecting emotional emphasis and high-velocity sentence hooks.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-[#06b6d4]/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#06b6d4]/10 border border-[#06b6d4]/30 flex items-center justify-center text-[#06b6d4] mb-4">
-                <Cpu className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-bold text-lg text-white mb-2">Track 2: AI B-Roll Generation</h3>
-              <p className="text-xs sm:text-sm text-zinc-400 font-sans leading-relaxed">
-                Dispatches contextual video generation jobs to decentralized Livepeer GPU nodes, producing seamless B-roll cut-ins in under 4 seconds.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-[#f43f5e]/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#f43f5e]/10 border border-[#f43f5e]/30 flex items-center justify-center text-[#f43f5e] mb-4">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-bold text-lg text-white mb-2">Track 3: Kinetic Typography Engine</h3>
-              <p className="text-xs sm:text-sm text-zinc-400 font-sans leading-relaxed">
-                Overlays high-impact Bebas Neue captions with word-level glow highlights, synchronizing visual cadence directly to the vocal meter.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* BOTTOM STUDIO CTA */}
-        <section className="py-20 px-4 sm:px-6 max-w-4xl mx-auto text-center">
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-b from-[#121622] to-[#08090e] border border-white/10 shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#84cc16]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#06b6d4]/10 rounded-full blur-3xl pointer-events-none" />
-
-            <span className="text-[11px] font-heading font-bold uppercase text-[#84cc16] tracking-widest block mb-3">
-              INSTANT VIRAL VIDEO ENGINE
+        {/* 3-TRACK TIMELINE SPECIFICATION */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/10">
+          <div className="text-left mb-8">
+            <span className="text-[10px] font-mono font-semibold uppercase text-[#84cc16] tracking-widest block mb-1">
+              TIMELINE ARCHITECTURE
             </span>
-
-            <h2 className="font-kinetic font-black text-3xl sm:text-5xl text-white tracking-tight mb-4">
-              Stop Losing 72% of Your Viewers
+            <h2 className="font-kinetic font-black text-2xl sm:text-3xl text-white tracking-tight">
+              Synchronized 3-Track Composition
             </h2>
-
-            <p className="max-w-xl mx-auto text-sm sm:text-base text-zinc-400 font-sans mb-8 leading-relaxed">
-              Open Dissect Studio, paste any long-form video URL or transcript, and let the 3-Track pipeline generate your high-retention cuts.
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mt-1 font-sans">
+              Multi-track audio, generative video cutaways, and kinetic captions synchronized at 60 FPS.
             </p>
+          </div>
 
-            <Link
-              href="/studio"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-heading font-bold text-black bg-gradient-to-r from-[#84cc16] to-[#06b6d4] hover:brightness-110 transition-all shadow-[0_0_30px_rgba(132,204,22,0.3)]"
-            >
-              <span>Launch Dissect Studio</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Timeline Display */}
+          <div className="p-5 sm:p-6 rounded-xl bg-[#090b10] border border-white/10 space-y-3 font-mono text-xs">
+            
+            {/* Track 1: Speaker Audio Track */}
+            <div className="flex items-center gap-3">
+              <div className="w-24 shrink-0 flex items-center gap-1.5 text-zinc-400 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-[#06b6d4]/15 text-[#06b6d4] font-semibold border border-[#06b6d4]/30">A1:HOST</span>
+              </div>
+              <div className="flex-1 h-8 rounded-lg bg-[#06b6d4]/10 border border-[#06b6d4]/25 flex items-center justify-between px-3 text-[10px] text-[#06b6d4] overflow-hidden">
+                <span className="font-bold">Speaker Track (1080x1920)</span>
+                <span className="text-zinc-500 hidden sm:inline">Active Tracking (0.99)</span>
+              </div>
+            </div>
+
+            {/* Track 2: B-Roll Inserts Track */}
+            <div className="flex items-center gap-3">
+              <div className="w-24 shrink-0 flex items-center gap-1.5 text-zinc-400 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-[#84cc16]/15 text-[#84cc16] font-semibold border border-[#84cc16]/30">V2:B-ROLL</span>
+              </div>
+              <div className="flex-1 h-9 rounded-lg bg-black/60 border border-white/10 relative flex items-center px-2">
+                <div className="absolute left-[15%] w-[25%] h-7 rounded bg-[#84cc16]/25 border border-[#84cc16]/50 flex items-center justify-center px-2 text-[9px] text-[#84cc16] font-bold">
+                  <span>Cutaway #1</span>
+                </div>
+                <div className="absolute left-[55%] w-[30%] h-7 rounded bg-[#84cc16]/25 border border-[#84cc16]/50 flex items-center justify-center px-2 text-[9px] text-[#84cc16] font-bold">
+                  <span>Cutaway #2</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Track 3: Subtitles Track */}
+            <div className="flex items-center gap-3">
+              <div className="w-24 shrink-0 flex items-center gap-1.5 text-zinc-400 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-[#fbbf24]/15 text-[#fbbf24] font-semibold border border-[#fbbf24]/30">T3:WORDS</span>
+              </div>
+              <div className="flex-1 h-7 rounded-lg bg-[#fbbf24]/10 border border-[#fbbf24]/20 flex items-center justify-between px-3 text-[10px] text-[#fbbf24]">
+                <span>Subtitles Track</span>
+                <span className="text-zinc-500 hidden sm:inline">Word-Level Alignment</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* STUDIO LAUNCH DECK */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+          <div className="p-8 sm:p-10 rounded-2xl bg-[#090b10] border-2 border-[#84cc16]/30 shadow-2xl relative text-left space-y-6">
+            
+            {/* Header Audio Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <Scissors className="w-5 h-5 text-[#84cc16]" />
+                <span className="font-kinetic text-sm font-black text-white tracking-wider uppercase">
+                  DISSECT NLE STUDIO
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
+                <span>PEAK BUS: -6dB</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              <div className="md:col-span-8 space-y-2">
+                <h3 className="font-kinetic font-black text-2xl sm:text-3xl text-white">
+                  Start Re-Cutting Video
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-400 font-sans leading-relaxed">
+                  Transform long-form speech into paced vertical reels with synchronized B-roll and kinetic captions.
+                </p>
+              </div>
+
+              <div className="md:col-span-4 flex justify-start md:justify-end">
+                <Link
+                  href="/studio"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-lg text-xs font-heading font-bold text-black bg-[#84cc16] hover:bg-[#a3e635] active:scale-95 transition-all shadow-[0_0_25px_rgba(132,204,22,0.3)] cursor-pointer"
+                >
+                  <span>Launch Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Footer Metadata */}
+            <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between text-[9px] font-mono text-zinc-500">
+              <span>ENGINE: WHISPER-V3 + LIVEPEER GPU</span>
+              <span>OUTPUT: 9:16 VERTICAL 1080x1920</span>
+              <span>RENDERER: 60 FPS CANVAS</span>
+            </div>
           </div>
         </section>
       </main>

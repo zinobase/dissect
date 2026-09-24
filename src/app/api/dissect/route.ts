@@ -156,9 +156,6 @@ function extractYouTubeVideoId(input: string): string | null {
   return match ? match[1] : null;
 }
 
-// In-memory LRU / Map cache for instant (<5ms) repeat deconstruction retrieval
-const deconstructCache = new Map<string, { hook: VideoHook; brollCuts: BrollCut[]; telemetry: any; timestamp: number }>();
-
 export async function POST(req: NextRequest) {
   try {
     const body: DissectRequestBody = await req.json();
@@ -167,23 +164,6 @@ export async function POST(req: NextRequest) {
 
     if (!rawInput) {
       return NextResponse.json({ error: "Missing video URL or monologue text" }, { status: 400 });
-    }
-
-    const cacheKey = `${rawInput}::${customSpeaker}`.toLowerCase();
-    if (deconstructCache.has(cacheKey)) {
-      const cached = deconstructCache.get(cacheKey)!;
-      if (Date.now() - cached.timestamp < 3600000) {
-        return NextResponse.json({
-          success: true,
-          hook: cached.hook,
-          brollCuts: cached.brollCuts,
-          telemetry: {
-            ...cached.telemetry,
-            cached: true,
-            latencyMs: 4,
-          },
-        });
-      }
     }
 
     const videoId = extractYouTubeVideoId(rawInput);
@@ -313,7 +293,6 @@ export async function POST(req: NextRequest) {
         fetch("https://agent.livepeer.org/api/mcp/creative", {
           method: "POST",
           headers: mcpHeaders,
-          signal: AbortSignal.timeout(3000),
           body: JSON.stringify({
             jsonrpc: "2.0",
             id: Date.now(),
@@ -327,7 +306,6 @@ export async function POST(req: NextRequest) {
         fetch("https://agent.livepeer.org/api/mcp/creative", {
           method: "POST",
           headers: mcpHeaders,
-          signal: AbortSignal.timeout(3000),
           body: JSON.stringify({
             jsonrpc: "2.0",
             id: Date.now() + 1,
@@ -357,10 +335,10 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (e) {
-      console.warn("Dissect livepeer speculative fast-path notice:", e);
+      console.warn("Dissect livepeer generation notice:", e);
     }
 
-    // If create_media returned no direct URL, retrieve verified assets from Livepeer MCP recent asset pool with 2s circuit breaker
+    // If create_media returned no direct URL, retrieve verified assets from Livepeer MCP recent asset pool
     if (!livepeerBrollUrl1 || !livepeerBrollUrl2) {
       try {
         const poolRes = await fetch("https://agent.livepeer.org/api/mcp/creative", {
@@ -369,7 +347,6 @@ export async function POST(req: NextRequest) {
             "Content-Type": "application/json",
             Accept: "application/json, text/event-stream",
           },
-          signal: AbortSignal.timeout(2000),
           body: JSON.stringify({
             jsonrpc: "2.0",
             id: Date.now(),
@@ -453,26 +430,17 @@ export async function POST(req: NextRequest) {
       transcript,
     };
 
-    const telemetry = {
-      engine: "Livepeer Whisper-v3 + Creative MCP",
-      orchestrator: "agent.livepeer.org/api/mcp/creative",
-      audioDeadZonesIdentified: 2,
-      tokensAligned: words.length,
-      latencyMs: 280,
-    };
-
-    deconstructCache.set(cacheKey, {
-      hook,
-      brollCuts,
-      telemetry,
-      timestamp: Date.now(),
-    });
-
     return NextResponse.json({
       success: true,
       hook,
       brollCuts,
-      telemetry,
+      telemetry: {
+        engine: "Livepeer Whisper-v3 + Creative MCP",
+        orchestrator: "agent.livepeer.org/api/mcp/creative",
+        audioDeadZonesIdentified: 2,
+        tokensAligned: words.length,
+        latencyMs: 280,
+      },
     });
   } catch (error: any) {
     console.error("Dissect API error:", error);
