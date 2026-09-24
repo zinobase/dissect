@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Youtube, ArrowRight, Wand2, RefreshCw, AlertCircle } from "lucide-react";
+import { X, ArrowRight, Wand2, RefreshCw, AlertCircle } from "lucide-react";
 import { VideoHook, TranscriptWord } from "../lib/types";
 import { livepeerMcp } from "../lib/livepeerMcp";
 
@@ -14,7 +14,7 @@ interface CustomHookModalProps {
 export function CustomHookModal({ isOpen, onClose, onAddHook }: CustomHookModalProps) {
   const [speaker, setSpeaker] = useState("Jensen Huang");
   const [title, setTitle] = useState("NVIDIA Keynote: The Physical AI Revolution");
-  const [sourceVideo, setSourceVideo] = useState("https://youtube.com/watch?v=GTC2026-Keynote");
+  const [sourceVideo, setSourceVideo] = useState("NVIDIA GTC 2026 Keynote");
   const [rawText, setRawText] = useState(
     "The next wave of artificial intelligence is physical AI. Autonomous robots powered by massive GPU clusters understanding the laws of physics and operating in our real physical world."
   );
@@ -139,15 +139,14 @@ export function CustomHookModal({ isOpen, onClose, onAddHook }: CustomHookModalP
           </div>
 
           <div>
-            <label className="text-zinc-400 block text-[9px] uppercase mb-1">YouTube / Podcast URL (Optional)</label>
+            <label className="text-zinc-400 block text-[9px] uppercase mb-1">Video / Speech Source Context</label>
             <div className="relative flex items-center">
-              <Youtube className="w-3.5 h-3.5 text-red-500 absolute left-2.5 pointer-events-none" />
               <input
                 type="text"
                 value={sourceVideo}
                 onChange={(e) => setSourceVideo(e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
-                className="w-full bg-black/60 border border-white/15 rounded-lg pl-8 pr-2.5 py-1.5 text-white focus:border-[#84cc16] focus:outline-none text-[10px]"
+                placeholder="e.g. GTC Keynote or Speech Context"
+                className="w-full bg-black/60 border border-white/15 rounded-lg px-2.5 py-1.5 text-white focus:border-[#84cc16] focus:outline-none text-[10px]"
               />
             </div>
           </div>

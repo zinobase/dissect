@@ -197,13 +197,9 @@ export async function POST(req: NextRequest) {
     if (oEmbedData) {
       if (!resolvedSpeaker) resolvedSpeaker = oEmbedData.author_name || "Keynote Speaker";
       resolvedTitle = oEmbedData.title || `Video Analysis (${videoId})`;
-      if (videoId) {
-        speakerVideoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      }
     } else if (videoId) {
       if (!resolvedSpeaker) resolvedSpeaker = customSpeaker || "Keynote Speaker";
       resolvedTitle = `Keynote #${videoId.slice(0, 8)}`;
-      speakerVideoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     }
 
     if (!isUrl) {
