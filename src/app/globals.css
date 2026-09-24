@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap');
+
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #07080d;
+  --foreground: #ededed;
+  --font-kinetic: 'Outfit', -apple-system, sans-serif;
+  --font-viral: 'Bebas Neue', sans-serif;
+  --font-geist: 'Geist', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "ss02";
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.02em;
+  overflow-x: hidden;
+}
+
+/* Master Kinetic Typographic Utility Classes */
+.font-kinetic {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.06em;
+  font-weight: 900;
+}
+
+.font-viral {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.font-heading {
+  font-family: 'Geist', sans-serif;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "zero" 1, "tnum" 1;
+}
+
+/* Halcyon Specular Bevel Card for Dissect */
+.halcyon-card-dissect {
+  background: rgba(12, 14, 21, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 8, 13, 0.9);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(132, 204, 22, 0.4);
+}
