@@ -14,6 +14,46 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                window.addEventListener('error', function(e) {
+                  if (
+                    (e.message && (e.message.indexOf('ethereum') !== -1 || e.message.indexOf('redefine property') !== -1)) ||
+                    (e.filename && e.filename.indexOf('chrome-extension') !== -1)
+                  ) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    return true;
+                  }
+                }, true);
+                window.addEventListener('unhandledrejection', function(e) {
+                  var msg = (e.reason && (e.reason.message || e.reason.stack)) || '';
+                  if (msg.indexOf('ethereum') !== -1 || msg.indexOf('chrome-extension') !== -1) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                  }
+                }, true);
+                try {
+                  var origDef = Object.defineProperty;
+                  Object.defineProperty = function(obj, prop, desc) {
+                    if (obj === window && prop === 'ethereum') {
+                      try {
+                        if (desc && !desc.configurable) desc.configurable = true;
+                        return origDef.call(Object, obj, prop, desc);
+                      } catch (err) {
+                        return obj;
+                      }
+                    }
+                    return origDef.call(Object, obj, prop, desc);
+                  };
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
