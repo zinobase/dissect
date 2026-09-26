@@ -40,6 +40,7 @@ import { SliceRefineModal } from "../../components/SliceRefineModal";
 import { optimizeCinematicPrompt, DirectorialStyle } from "../../lib/prompt-optimizer";
 import { livepeerMcp } from "../../lib/livepeerMcp";
 import { cinematicAudio } from "../../lib/cinematic-audio";
+import { DissectLogoMark } from "../../components/DissectLogoMark";
 
 type PlatformSafeMode = "tiktok" | "reels" | "shorts";
 type SubtitleStyle = "hormozi" | "mrbeast" | "cyber" | "minimal";
@@ -710,9 +711,10 @@ export default function DissectStudioPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 group text-zinc-400 hover:text-white transition-colors"
+            className="flex items-center gap-2.5 group text-zinc-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            <DissectLogoMark className="w-5 h-4 transition-transform group-hover:scale-105 drop-shadow-[0_0_8px_rgba(132,204,22,0.35)]" />
             <span className="font-heading font-black text-sm tracking-tighter text-white">
               DISSECT<span className="text-[#84cc16]">.AI</span>
             </span>

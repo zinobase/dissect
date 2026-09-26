@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Dissect | Autonomous Generative B-Roll & Social Clip Re-Cutter",
   description: "Repurpose long-form video into high-retention 9:16 vertical cuts with autonomous Livepeer generative B-roll insertion.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Scissors, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { DissectLogoMark } from "./DissectLogoMark";
 
 export function LandingHeader() {
   const playClickSound = () => {
@@ -28,10 +29,8 @@ export function LandingHeader() {
     <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#07090e]/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[92rem] items-center justify-between px-5 sm:px-8 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         {/* Brand Lockup */}
-        <Link href="/" className="-m-1 flex items-center gap-3 justify-self-start rounded-md p-1 group">
-          <div className="w-8 h-8 rounded-lg bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center justify-center text-[#84cc16] shadow-[0_0_15px_rgba(132,204,22,0.15)] group-hover:border-[#84cc16]/60 transition-colors">
-            <Scissors className="w-4 h-4" />
-          </div>
+        <Link href="/" className="-m-1 flex items-center gap-2.5 justify-self-start rounded-md p-1 group">
+          <DissectLogoMark className="w-8 h-7 transition-transform group-hover:scale-105 drop-shadow-[0_0_12px_rgba(132,204,22,0.35)]" />
           <div>
             <div className="flex items-center">
               <span className="font-kinetic font-black text-sm tracking-tight text-white group-hover:text-[#84cc16] transition-colors">

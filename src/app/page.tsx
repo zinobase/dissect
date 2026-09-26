@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { LandingHeader } from "@/components/LandingHeader";
 import { PhoneViewportMockup } from "@/components/PhoneViewportMockup";
+import { DissectLogoMark } from "@/components/DissectLogoMark";
 
 // --- PROCEDURAL WEB AUDIO FEEDBACK ---
 function playProceduralSound(freq = 1200, type: OscillatorType = "sine", duration = 0.035) {
@@ -183,21 +184,7 @@ export default function DissectLandingPage() {
             
             {/* Geometric Mark Lockup */}
             <div className="relative isolate inline-flex items-center justify-center gap-4 mb-6">
-              <svg 
-                viewBox="112 82 256 176" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg" 
-                aria-hidden="true" 
-                className="h-14 sm:h-18 w-auto shrink-0"
-              >
-                {/* Ring 1: Raw Cadence Stream */}
-                <circle cx="200" cy="170" r="70" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
-                {/* Ring 2: Livepeer 9:16 Synthesis Cut */}
-                <circle cx="280" cy="170" r="70" stroke="#84cc16" strokeWidth="5" strokeDasharray="440" strokeDashoffset="40" />
-                {/* Intersection Node: Verified Retention Cut */}
-                <circle cx="240" cy="170" r="14" fill="#07090e" stroke="#84cc16" strokeWidth="3" />
-                <circle cx="240" cy="170" r="5" fill="#84cc16" />
-              </svg>
+              <DissectLogoMark className="h-12 sm:h-16 w-auto shrink-0 drop-shadow-[0_0_24px_rgba(132,204,22,0.35)]" />
 
               <div className="flex flex-col text-left">
                 <span className="font-kinetic font-black text-2xl sm:text-3xl text-white tracking-tight leading-none">
@@ -903,9 +890,7 @@ export default function DissectLandingPage() {
               {/* Brand and Summary */}
               <div className="max-w-xs space-y-3 text-left">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center justify-center text-[#84cc16]">
-                    <Scissors className="w-3.5 h-3.5" />
-                  </div>
+                  <DissectLogoMark className="w-8 h-7 drop-shadow-[0_0_12px_rgba(132,204,22,0.35)]" />
                   <span className="font-kinetic font-black text-lg text-white tracking-tight">
                     DISSECT
                   </span>

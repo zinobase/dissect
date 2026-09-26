@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Scissors, Cpu, Flame, Layers, Sparkles, ChevronLeft } from "lucide-react";
+import { Cpu, Flame, Layers, Sparkles, ChevronLeft } from "lucide-react";
+import { DissectLogoMark } from "./DissectLogoMark";
 
 interface HeaderProps {
   onExport: () => void;
@@ -21,9 +22,7 @@ export function Header({ onExport, retentionScore }: HeaderProps) {
           <span className="hidden sm:inline">Overview</span>
         </Link>
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-lg bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center justify-center text-[#84cc16] group-hover:scale-105 transition-transform">
-            <Scissors className="w-4 h-4" />
-          </div>
+          <DissectLogoMark className="w-8 h-7 group-hover:scale-105 transition-transform drop-shadow-[0_0_10px_rgba(132,204,22,0.35)]" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-display font-bold text-sm tracking-tight text-white group-hover:text-[#84cc16] transition-colors">
