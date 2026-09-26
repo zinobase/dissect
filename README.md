@@ -1,126 +1,136 @@
-# Dissect: Autonomous Generative B-Roll & Social Clip Re-Cutter
+# Dissect: Autonomous Short-Form Video Re-Cutter & Generative B-Roll Studio
 
-> **Livepeer Agent Hackathon Submission**
-> **Track**: Track 2 — Core Livepeer Agent Builder Track ($1,000)
-> **Author**: Kaito Tanaka ([@kaitotanaka-dev](https://github.com/kaitotanaka-dev) · kaito.tanaka.vibe@gmail.com)
-> **Livepeer Creative MCP Endpoint**: `https://agent.livepeer.org/api/mcp/creative` (125 tools)
-> **Participant Compute Model**: Hacker Packet $100 on connect (auto-reups every 24h)
+> **Transform long-form talking-head streams, keynotes, and podcasts into high-retention 9:16 vertical video reels powered by the Livepeer Agent Creative MCP.**
 
 ---
 
-## Executive Summary
+## The Retention Problem
 
-**Dissect** transforms raw long-form videos (podcasts, keynotes, technical streams) into high-retention 9:16 vertical short-form reels.
+Long-form podcasts and technical presentations consistently fail on short-form platforms (TikTok, Instagram Reels, YouTube Shorts) due to **talking-head fatigue**. 
 
-Unlike conventional repurposing apps that pull unrelated stock photography from Storyblocks or Pexels, Dissect:
-1. **Scans & Segments**: Uses Livepeer MCP `transcribe` and `find_moments` with word-level timestamps to detect high-retention narrative hooks and identify "visual dead zones" (>3s of static talking head).
-2. **Generates Contextual B-Roll**: Automatically dispatches prompts to the **Livepeer Agent Creative MCP** (`https://agent.livepeer.org/api/mcp/creative`) via the `create_media` tool to synthesize cinematic 9:16 vertical B-roll cutaways matching the speaker's conceptual points.
-3. **Interactive 3-Track NLE**: Exposes an interactive 3-track timeline (Reframed Speaker, Generative B-roll, Word-Level Kinetic Captions).
-4. **Conversational Slice Surgery**: Allows creators to scrub to any individual B-roll segment and refine the prompt, re-rendering in seconds directly on Livepeer decentralized nodes without touching the rest of the cut.
+When a video remains on a static shot of a speaker for more than 3 seconds without visual variety, viewer drop-off spikes by over 60%. Manual re-cutting requires editors to:
+1. Scrub through hours of transcripts to locate viral hooks.
+2. Manually search stock websites (Pexels, Storyblocks) for generic, unrelated footage.
+3. Manually keyframe vertical 9:16 reframing, cutaways, and subtitle animations.
 
----
-
-## Livepeer Hacker Packet & MCP Integration
-
-Dissect is engineered strictly around the official Livepeer Agent Hackathon participant framework:
-
-- **Official MCP Endpoint**: Direct JSON-RPC 2.0 integration with `https://agent.livepeer.org/api/mcp/creative` using `Accept: application/json, text/event-stream`.
-- **$100 Daily Hacker Allowance**: Adheres to the official hackathon rule: each hacker receives their own $100 credit on connect, automatically re-upping every 24 hours. Dissect measures exact B-roll synthesis drawdowns (`~$0.02 - $0.04/cut`).
-- **Keyless or Bearer Token**: Connects instantly in keyless demo/participant mode, or attaches the participant's Livepeer Agent Bearer key from the in-app Model Drawer.
-- **Zero-CORS Streaming Media Proxy**: Uses an integrated server-side streaming proxy (`/api/proxy-media`) with `Access-Control-Allow-Origin: *`, resolving upstream 302 redirects and preventing HTML5 canvas tainting.
-- **60 FPS Vertical Smartphone Simulator**: The 9:16 viewport player runs directly on an HTML5 canvas with procedural scanlines, face-tracking crop reticles, and audio waveforms with zero React re-render overhead.
+**Dissect automates this entire editing pipeline** through an intelligent agent loop backed by decentralized Livepeer AI inference.
 
 ---
 
-## System Architecture
+## How Dissect Works
 
-```
-[ Long-Form Video / Stream URL ]
-                 │
-                 ▼
-┌──────────────────────────────────────────────────────────┐
-│ Livepeer Agent Creative MCP (agent.livepeer.org)         │
-│ • Tool: transcribe (word-level timestamps & transcript)  │
-│ • Tool: find_moments (retention spike & hook detection)  │
-└──────────────────────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────┐
-│     Visual Dead Zone Detector   │ ──> Identifies static talking-head moments >3s
-└─────────────────────────────────┘
-                 │
-                 ▼
-┌──────────────────────────────────────────────────────────┐
-│ Livepeer Agent Creative MCP (agent.livepeer.org)         │
-│ • Tool: create_media (9:16 vertical cinematic B-roll)    │
-│ • Tool: director_export (3-track master compilation)     │
-└──────────────────────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────┐
-│   Interactive 3-Track Director  │
-│ Track A: ActiveSpeaker 9:16     │
-│ Track B: Generative B-Roll Cut  │
-│ Track C: Word Kinetic Subtitles │
-└─────────────────────────────────┘
+```mermaid
+flowchart LR
+    A["Raw Video / Audio"] --> B["Transcript & Hook Extraction\n(Livepeer MCP: transcribe)"]
+    B --> C["Dead-Zone Scanner\n(Static talking head >3s)"]
+    C --> D["Contextual Prompt Generator\n(Extracts spoken metaphors)"]
+    D --> E["Vertical 9:16 B-Roll Synthesis\n(Livepeer MCP: create_media)"]
+    E --> F["Interactive 3-Track NLE\n(Speaker + B-Roll + Subtitles)"]
+    F --> G["Multi-Platform Export\n(TikTok / Reels / Shorts Safe)"]
 ```
 
+### 1. Retention Hook & Dead-Zone Detection
+Dissect uses the Livepeer Agent MCP `transcribe` and `find_moments` tools with word-level precision to:
+- Generate a dynamic retention score curve across the speech.
+- Scan for **visual dead-zones**—unbroken talking-head segments longer than 3 seconds.
+- Automatically position B-roll cutaway entry and exit points to maintain pacing cadence.
+
+### 2. Context-Aware 9:16 B-Roll Synthesis
+Rather than inserting generic stock videos of office buildings or keyboards, Dissect extracts the speaker's conceptual points (e.g. quantum computing, liquidity pools, telemetry telemetry) and issues structured 9:16 vertical generation calls to `agent.livepeer.org/api/mcp/creative` using the `create_media` tool.
+
+### 3. Interactive 3-Track NLE
+Dissect provides an in-browser non-linear editing stage with three parallel media tracks:
+- **Track 1 (Speaker Base)**: 9:16 face-tracked re-framing of the original long-form video.
+- **Track 2 (Generative B-Roll)**: Dynamic AI-generated visual cutaways positioned over dead zones.
+- **Track 3 (Kinetic Captions)**: Word-level animated typography aligned with speech cadence.
+
+### 4. Conversational Slice Surgery
+Editors are never locked into an AI generation. Clicking any individual slice on Track 2 opens the Slice Refinement drawer, allowing the creator to adjust prompts, directorial lenses, camera motion vectors, or re-render that specific cut in seconds without touching the rest of the timeline.
+
 ---
 
-## Core Capabilities
+## Editor Features & Tooling
 
-### 1. Multimodal Hook Scoring & Dead-Zone Detection
-- Evaluates video transcripts to generate viral retention curves (0-100%).
-- Flags static visual dead-zones where audience drop-off spikes.
+### NLE Editing Tools
+- **Select Mode (`V`)**: Scrub, position playhead, and inspect segment properties.
+- **Blade Tool (`B`)**: Split B-roll segments at exact word boundaries.
+- **Ripple Tool (`R`)**: Adjust cutaway duration with automatic downstream timeline ripple.
 
-### 2. Livepeer Contextual 9:16 B-Roll Synthesis
-- Automatically maps spoken phrases to vertical camera directives (Grand Prix Engineering, Cosmic Frontier, Abyssal Systems, Quantitative Capital, Neural Architecture).
-- Dispatches parallel diffusion jobs directly across Livepeer GPU orchestrator nodes.
+### Kinetic Subtitle Engine
+Dissect includes built-in viral typography presets with word-level highlight animation:
+- **Hormozi Punch**: Bold yellow/green accent emphasis on active spoken keywords.
+- **MrBeast Kinetic**: High-contrast block styling with kinetic scale pops.
+- **Cyber Glitch**: Monospace typography with chromatic cyan/magenta shifts.
+- **Minimal Clean**: Subdued editorial typography for technical or documentary content.
 
-### 3. Surgical Slice Refinement
-- Interactive scrubber allows clicking any generated B-roll cut to modify directorial lenses, camera trajectory (dolly in, pan, orbit), or guidance scale.
+### Social Platform Safe-Area HUDs
+Toggleable in-player viewport guides ensure critical text and visual focal points avoid UI elements across target destinations:
+- **TikTok**: Accounts for right-side action buttons, bottom caption bar, and top search header.
+- **Instagram Reels**: Accounts for bottom audio ticker, right engagement icons, and username tags.
+- **YouTube Shorts**: Accounts for bottom title bar and subscribe overlay.
 
-### 4. Export & Multi-Platform Safe Area HUD
-- Toggleable overlay templates for TikTok, Instagram Reels, and YouTube Shorts safe zones.
-- Export modal for finalized 9:16 master reels with word-level burned kinetic captions.
+---
+
+## Livepeer MCP Technical Integration
+
+Dissect connects directly to the **Livepeer Agent Creative MCP** (`https://agent.livepeer.org/api/mcp/creative`) over JSON-RPC 2.0:
+
+- **Endpoint**: `https://agent.livepeer.org/api/mcp/creative`
+- **Supported Tools**:
+  - `transcribe`: Produces word-level timestamps and phonetic text representation.
+  - `find_moments`: Evaluates emotional inflection, pace transitions, and topical shifts to rank viral clips.
+  - `create_media`: Dispatches 9:16 vertical image and video diffusion tasks to decentralized GPU orchestrator nodes.
+  - `me`: Verifies hacker credit quota and authenticated principal status.
+- **Participant Compute Model**: Operates out of the box using keyless hackathon participant allowance ($100 daily quota), or via personal Bearer key supplied in the Developer Settings drawer.
+- **Canvas Streaming Proxy**: Leverages a local `/api/proxy-media` server route to stream external media assets with permissive CORS headers, preventing HTML5 canvas tainting during real-time timeline playback.
 
 ---
 
 ## Quickstart & Local Setup
 
-### 1. Installation
+### Prerequisites
+- Node.js >= 18.x
+- npm >= 9.x
+
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/kaitotanaka-dev/dissect.git
+git clone https://github.com/zinobase/dissect.git
 cd dissect
+```
+
+### 2. Install Dependencies
+```bash
 npm install
 ```
 
-### 2. Environment (Optional)
+### 3. Environment Configuration (Optional)
 ```bash
 cp .env.example .env.local
 ```
-*(Leave empty to connect keyless using your hackathon participant allowance, or add your Livepeer Agent Bearer key)*
+*(Leave empty to connect keyless using your hackathon participant allowance, or enter your Livepeer Agent Bearer key)*
 
-### 3. Launch Studio
+### 4. Start the Studio
 ```bash
 npm run dev
 ```
-Open [http://localhost:3003](http://localhost:3003) in your browser.
+Open [http://localhost:3003](http://localhost:3003) to launch the Dissect editing workstation.
 
 ---
 
 ## Technology Stack
 
 - **Framework**: Next.js 14 (App Router), React 18, TypeScript
-- **Decentralized AI Compute**: Livepeer Agent Creative MCP (`https://agent.livepeer.org/api/mcp/creative`)
-- **Styling & Aesthetics**: Tailwind CSS, Lucide Icons, 60 FPS HTML5 Canvas Compositor
-- **Procedural Sound**: In-browser Web Audio API sound cue engine
+- **AI Infrastructure**: Livepeer Agent Creative MCP (`agent.livepeer.org`)
+- **Compositor Engine**: 60 FPS HTML5 Canvas with letterbox re-framing
+- **Audio Feedback**: Procedural Web Audio API sound feedback
+- **Styling**: Tailwind CSS, Lucide Icons
 
 ---
 
 ## Author & Submission Details
 
-- **Author**: Kaito Tanaka
-- **GitHub**: [@kaitotanaka-dev](https://github.com/kaitotanaka-dev)
-- **Track**: Track 2 — Core Livepeer Agent Builder Track
+- **Author**: zinobase
+- **GitHub**: [@zinobase](https://github.com/zinobase)
+- **Email**: zinobase15@gmail.com
+- **Track**: Track 2 — Core Livepeer Agent Builder Track ($1,000)
 - **License**: MIT
