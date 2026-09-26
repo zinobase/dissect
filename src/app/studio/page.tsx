@@ -39,6 +39,8 @@ import {
   Repeat,
   Eye,
   Lock,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer, createDynamicHookFromKeynote } from "../../lib/broll-synthesizer";
 import { VideoHook, BrollCut, TranscriptWord } from "../../lib/types";
@@ -64,6 +66,7 @@ export default function DissectStudioPage() {
   const [isLooping, setIsLooping] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [activeTool, setActiveTool] = useState<ToolMode>("select");
+  const [isTimelineCollapsed, setIsTimelineCollapsed] = useState<boolean>(false);
 
   // Multi-Platform Safe Area Switcher
   const [platformSafeMode, setPlatformSafeMode] = useState<PlatformSafeMode>("tiktok");
@@ -1932,11 +1935,10 @@ export default function DissectStudioPage() {
 
       </div>
 
-      {/* 3. BOTTOM WORKSTATION DOCK: PRO NLE MULTI-TRACK TIMELINE */}
-      <div className="h-44 sm:h-48 bg-[#04060b] border-t border-white/10 px-3 py-2 flex flex-col justify-between shrink-0 select-none shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
-        
-        {/* NLE Toolbar Header with Quick Actions & Playhead Controls */}
-        <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 pb-1.5 border-b border-white/10">
+      {/* 3. BOTTOM WORKSTATION DOCK: COMPACT PRO NLE TIMELINE */}
+      {isTimelineCollapsed ? (
+        /* MINIMIZED SLIM SCRUBBER STRIP (Saves 150px of vertical space) */
+        <div className="h-8 bg-[#04060b] border-t border-white/10 px-3 flex items-center justify-between shrink-0 select-none shadow-[0_-4px_20px_rgba(0,0,0,0.8)]">
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10 shadow-inner">
               {[
@@ -1952,15 +1954,15 @@ export default function DissectStudioPage() {
                       cinematicAudio.play("toggle");
                       setActiveTool(t.id as ToolMode);
                     }}
-                    className={`px-2 py-0.5 rounded-full transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
+                    className={`px-1.5 py-0.5 rounded-full transition-all active:scale-95 cursor-pointer flex items-center gap-0.5 ${
                       isActive
                         ? "bg-white/20 text-white font-bold border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
                         : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                     }`}
                     title={t.title}
                   >
-                    <Icon className="w-3 h-3" />
-                    <span className="text-[7.5px]">{t.label}</span>
+                    <Icon className="w-2.5 h-2.5" />
+                    <span className="text-[7px]">{t.label}</span>
                   </button>
                 );
               })}
@@ -1971,214 +1973,320 @@ export default function DissectStudioPage() {
                 cinematicAudio.play("click");
                 handleSynthesizeBroll();
               }}
-              className="px-3 py-1 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white text-[8.5px] font-mono flex items-center gap-1.5 active:scale-95 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] cursor-pointer"
-              title="Inject AI B-Roll cut at current playhead position"
+              className="px-2.5 py-0.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white text-[8px] font-mono flex items-center gap-1 active:scale-95 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] cursor-pointer"
+              title="Inject AI B-Roll cut at playhead"
             >
-              <Zap className="w-2.5 h-2.5 text-[#84cc16]" />
-              <span>+ Cut at Playhead</span>
+              <Zap className="w-2 h-2 text-[#84cc16]" />
+              <span>+ Cut</span>
             </button>
             
-            <div className="hidden md:flex items-center gap-1.5 text-[8px] font-mono text-zinc-400 bg-white/[0.03] px-2 py-0.5 rounded-full border border-white/5">
-              <span className="text-[#84cc16] font-bold">SNAP: ON</span>
-              <span className="text-zinc-600">·</span>
-              <span>24 FPS NON-DROP</span>
-              <span className="text-zinc-600">·</span>
-              <span className="text-zinc-300">REC.709</span>
-            </div>
+            <span className="text-[7.5px] font-mono text-zinc-500 uppercase font-bold tracking-wider hidden sm:inline">
+              Timeline Mini
+            </span>
           </div>
 
-          {/* Timeline Transport Center-Right */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10">
-              <button
-                onClick={() => {
-                  cinematicAudio.play("click");
-                  handleSeek(0);
-                }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                title="Rewind to Start (J)"
-              >
-                <SkipBack className="w-2.5 h-2.5" />
-              </button>
-              <button
-                onClick={() => {
-                  cinematicAudio.play("toggle");
-                  setIsPlaying(!isPlaying);
-                }}
-                className="px-2.5 py-0.5 rounded-full bg-white text-black font-bold text-[8px] flex items-center gap-1 active:scale-95 cursor-pointer shadow-[0_1px_6px_rgba(255,255,255,0.25)]"
-                title="Play/Pause (Space)"
-              >
-                {isPlaying ? <Pause className="w-2.5 h-2.5 fill-current" /> : <Play className="w-2.5 h-2.5 fill-current" />}
-                <span>{isPlaying ? "Pause" : "Play"}</span>
-              </button>
-              <button
-                onClick={() => {
-                  cinematicAudio.play("click");
-                  handleSeek(selectedHook.durationSec);
-                }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                title="Jump to End (L)"
-              >
-                <SkipForward className="w-2.5 h-2.5" />
-              </button>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 text-[8.5px] font-mono">
-              <span className="text-zinc-400">Total: {selectedHook.durationSec}s</span>
-              <span className="text-zinc-600">|</span>
-              <span>Playhead: <span className="text-[#84cc16] font-bold">{formatTime(currentTime)}</span> <span className="text-zinc-500">({Math.floor((currentTime % 1) * 24)}f)</span></span>
-            </div>
-          </div>
-        </div>
-
-        {/* Tracks Section: Left Headers + Right Workspace */}
-        <div className="flex-1 flex gap-2 min-h-0 pt-1">
-          {/* Left Track Headers (Pro NLE Style) */}
-          <div className="w-20 sm:w-24 shrink-0 flex flex-col justify-between text-[8px] font-mono text-zinc-400 select-none pb-0.5">
-            <div className="h-4 flex items-center text-[7px] text-zinc-500 font-bold uppercase tracking-wider px-1">
-              TRACKS
-            </div>
-
-            {/* V2 Header */}
-            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
-              <span className="text-[#84cc16] font-bold">V2 B-ROLL</span>
-              <Eye className="w-2.5 h-2.5 text-zinc-500" />
-            </div>
-
-            {/* V1 Header */}
-            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
-              <span className="text-zinc-300 font-bold">V1 HOST</span>
-              <Lock className="w-2.5 h-2.5 text-zinc-500" />
-            </div>
-
-            {/* A1 Header */}
-            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
-              <button
-                type="button"
-                onClick={() => {
-                  cinematicAudio.play("toggle");
-                  setIsMuted(!isMuted);
-                }}
-                className={`flex items-center gap-1 font-bold cursor-pointer transition-all hover:brightness-125 ${
-                  isMuted ? "text-rose-400" : "text-[#84cc16]"
-                }`}
-                title={isMuted ? "Unmute Audio" : "Mute Audio"}
-              >
-                {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
-                <span>A1 AUD</span>
-              </button>
-              <span className="text-[7px] text-zinc-500">0dB</span>
-            </div>
-          </div>
-
-          {/* Main Timeline Workspace (Ruler + Lanes + Playhead) */}
-          <div 
+          {/* Slim Scrub Track */}
+          <div
             onClick={handleTimelineClick}
-            className={`flex-1 relative flex flex-col justify-between overflow-hidden select-none transition-all ${
-              activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
-            }`}
-            title={activeTool === "blade" ? "Click to Slice B-Roll Cut at timestamp" : "Click anywhere on timeline to seek playhead"}
+            className="flex-1 max-w-xl mx-3 h-3 bg-[#080c14] border border-white/10 rounded-full relative overflow-hidden cursor-pointer group"
+            title="Click to seek playhead"
           >
-            {/* Red Laser Playhead Indicator spanning Ruler & Tracks */}
+            {/* Cut markers */}
+            {brollCuts.map((cut) => {
+              const leftPct = (cut.startSec / selectedHook.durationSec) * 100;
+              const widthPct = (cut.durationSec / selectedHook.durationSec) * 100;
+              return (
+                <div
+                  key={cut.id}
+                  style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                  className="absolute inset-y-0 bg-[#84cc16]/40 border-x border-[#84cc16] pointer-events-none"
+                />
+              );
+            })}
+            {/* Playhead */}
             <div
               style={{
                 left: `${Math.min(99.5, Math.max(0.5, (currentTime / selectedHook.durationSec) * 100))}%`,
               }}
-              className="absolute top-0 bottom-0 z-30 pointer-events-none -translate-x-1/2 flex flex-col items-center"
+              className="absolute inset-y-0 w-1.5 -translate-x-1/2 bg-red-500 shadow-[0_0_6px_rgba(239,68,68,1)] pointer-events-none rounded-full"
+            />
+          </div>
+
+          {/* Transport & Expand Button */}
+          <div className="flex items-center gap-2 text-[8px] font-mono">
+            <span className="text-zinc-400 font-bold hidden sm:inline">
+              <span className="text-[#84cc16]">{formatTime(currentTime)}</span> / {selectedHook.durationSec}s
+            </span>
+            <button
+              onClick={() => {
+                cinematicAudio.play("toggle");
+                setIsTimelineCollapsed(false);
+              }}
+              className="px-2 py-0.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-white text-[7.5px] font-mono flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+              title="Expand Pro Multi-Track Lanes"
             >
-              <div className="w-2.5 h-2.5 bg-red-500 rotate-45 border border-white/80 shadow-[0_0_10px_rgba(239,68,68,1)] shrink-0 -mt-0.5" />
-              <div className="w-[1.5px] flex-1 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
-            </div>
-
-            {/* SMPTE Timecode Ruler with Subdivision Ticks */}
-            <div className="h-4 bg-[#080c14] rounded-t border border-white/10 relative overflow-hidden flex items-end">
-              {Array.from({ length: Math.ceil(selectedHook.durationSec) + 1 }).map((_, sec) => {
-                if (sec > selectedHook.durationSec) return null;
-                const leftPct = (sec / selectedHook.durationSec) * 100;
-                return (
-                  <React.Fragment key={sec}>
-                    {/* Major tick & label */}
-                    <div
-                      style={{ left: `${leftPct}%` }}
-                      className="absolute bottom-0 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+              <ChevronUp className="w-2.5 h-2.5 text-[#84cc16]" />
+              <span>Expand Tracks</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* COMPACT PRO NLE MULTI-TRACK DOCK (Optimized to ~105px) */
+        <div className="h-[105px] sm:h-[110px] bg-[#04060b] border-t border-white/10 px-3 py-1.5 flex flex-col justify-between shrink-0 select-none shadow-[0_-6px_25px_rgba(0,0,0,0.8)]">
+          
+          {/* NLE Toolbar Header with Quick Actions & Playhead Controls */}
+          <div className="flex items-center justify-between text-[8.5px] font-mono text-zinc-400 pb-1 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10 shadow-inner">
+                {[
+                  { id: "select", icon: MousePointer, label: "V", title: "Selection Pointer (V)" },
+                  { id: "blade", icon: Scissors, label: "C", title: "Razor Blade Cut (C)" },
+                ].map((t) => {
+                  const Icon = t.icon;
+                  const isActive = activeTool === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        cinematicAudio.play("toggle");
+                        setActiveTool(t.id as ToolMode);
+                      }}
+                      className={`px-1.5 py-0.5 rounded-full transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
+                        isActive
+                          ? "bg-white/20 text-white font-bold border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
+                          : "text-zinc-400 hover:text-zinc-200 border border-transparent"
+                      }`}
+                      title={t.title}
                     >
-                      <span className="text-[6.5px] font-mono text-zinc-400 leading-none mb-0.5 select-none font-semibold">
-                        {sec}s
-                      </span>
-                      <div className="w-[1px] h-2 bg-white/40" />
-                    </div>
+                      <Icon className="w-2.5 h-2.5" />
+                      <span className="text-[7px]">{t.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-                    {/* Minor ticks (quarter seconds) */}
-                    {[0.25, 0.5, 0.75].map((sub) => {
-                      const subSec = sec + sub;
-                      if (subSec >= selectedHook.durationSec) return null;
-                      const subPct = (subSec / selectedHook.durationSec) * 100;
-                      return (
-                        <div
-                          key={sub}
-                          style={{ left: `${subPct}%` }}
-                          className="absolute bottom-0 -translate-x-1/2 pointer-events-none"
-                        >
-                          <div className={`w-[1px] ${sub === 0.5 ? "h-1.5 bg-white/25" : "h-1 bg-white/15"}`} />
-                        </div>
-                      );
-                    })}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-
-            {/* Track V2: Livepeer AI B-Roll */}
-            <div className="h-6 bg-black/60 rounded border border-white/5 relative overflow-hidden flex items-center">
-              {brollCuts.map((cut) => {
-                const leftPct = (cut.startSec / selectedHook.durationSec) * 100;
-                const widthPct = (cut.durationSec / selectedHook.durationSec) * 100;
-                return (
-                  <div
-                    key={cut.id}
-                    onClick={() => handleSeek(cut.startSec)}
-                    onDoubleClick={() => setRefiningCut(cut)}
-                    style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                    className="absolute h-full bg-[#84cc16]/15 hover:bg-[#84cc16]/25 border border-[#84cc16]/60 rounded px-1.5 flex items-center justify-between text-[7px] font-mono text-[#84cc16] cursor-pointer hover:brightness-125 truncate group transition-colors shadow-[0_0_8px_rgba(132,204,22,0.15)]"
-                    title="Click to seek · Double-click to open Slice Surgery"
-                  >
-                    <span className="truncate font-bold">{cut.triggerPhrase}</span>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[6.5px] opacity-80">{cut.durationSec}s</span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRefiningCut(cut);
-                        }}
-                        className="hidden group-hover:inline px-1 py-0.5 rounded bg-black/80 text-white hover:text-[#84cc16] border border-white/20 text-[6px] cursor-pointer"
-                        title="Refine Slice Prompt on Livepeer MCP"
-                      >
-                        Refine
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Track V1: Host A-Roll */}
-            <div className="h-6 bg-[#0c121e] rounded border border-white/10 relative overflow-hidden flex items-center px-2 text-[7px] font-mono text-zinc-300">
-              <div className="flex items-center gap-1.5 truncate">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="font-bold text-white">{selectedHook.sourceSpeaker}</span>
-                <span className="text-zinc-500">· 9:16 Face Tracked Primary Cut · 1080x1920 60FPS</span>
+              <button
+                onClick={() => {
+                  cinematicAudio.play("click");
+                  handleSynthesizeBroll();
+                }}
+                className="px-2.5 py-0.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white text-[8px] font-mono flex items-center gap-1 active:scale-95 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] cursor-pointer"
+                title="Inject AI B-Roll cut at current playhead position"
+              >
+                <Zap className="w-2 h-2 text-[#84cc16]" />
+                <span>+ Cut at Playhead</span>
+              </button>
+              
+              <div className="hidden md:flex items-center gap-1.5 text-[7.5px] font-mono text-zinc-400 bg-white/[0.03] px-2 py-0.5 rounded-full border border-white/5">
+                <span className="text-[#84cc16] font-bold">SNAP: ON</span>
+                <span className="text-zinc-600">·</span>
+                <span>24 FPS NON-DROP</span>
               </div>
             </div>
 
-            {/* Track A1: Audio Waveform Canvas */}
-            <div className="h-6 rounded border border-white/10 overflow-hidden bg-black/80 relative">
-              <canvas ref={timelineCanvasRef} className="w-full h-full block" />
+            {/* Timeline Transport Center-Right */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1 bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10">
+                <button
+                  onClick={() => {
+                    cinematicAudio.play("click");
+                    handleSeek(0);
+                  }}
+                  className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
+                  title="Rewind to Start (J)"
+                >
+                  <SkipBack className="w-2 h-2" />
+                </button>
+                <button
+                  onClick={() => {
+                    cinematicAudio.play("toggle");
+                    setIsPlaying(!isPlaying);
+                  }}
+                  className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[7.5px] flex items-center gap-1 active:scale-95 cursor-pointer shadow-[0_1px_4px_rgba(255,255,255,0.2)]"
+                  title="Play/Pause (Space)"
+                >
+                  {isPlaying ? <Pause className="w-2 h-2 fill-current" /> : <Play className="w-2 h-2 fill-current" />}
+                  <span>{isPlaying ? "Pause" : "Play"}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    cinematicAudio.play("click");
+                    handleSeek(selectedHook.durationSec);
+                  }}
+                  className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
+                  title="Jump to End (L)"
+                >
+                  <SkipForward className="w-2 h-2" />
+                </button>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 text-[8px] font-mono">
+                <span className="text-zinc-400">Total: {selectedHook.durationSec}s</span>
+                <span className="text-zinc-600">|</span>
+                <span>Playhead: <span className="text-[#84cc16] font-bold">{formatTime(currentTime)}</span> <span className="text-zinc-500">({Math.floor((currentTime % 1) * 24)}f)</span></span>
+              </div>
+              <button
+                onClick={() => {
+                  cinematicAudio.play("toggle");
+                  setIsTimelineCollapsed(true);
+                }}
+                className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white cursor-pointer transition-colors"
+                title="Collapse Timeline (Maximize Workspace)"
+              >
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Tracks Section: Left Headers + Right Workspace */}
+          <div className="flex-1 flex gap-2 min-h-0 pt-0.5">
+            {/* Left Track Headers (Pro NLE Style) */}
+            <div className="w-18 sm:w-20 shrink-0 flex flex-col justify-between text-[7px] font-mono text-zinc-400 select-none pb-0.5">
+              <div className="h-3 flex items-center text-[6.5px] text-zinc-500 font-bold uppercase tracking-wider px-1">
+                TRACKS
+              </div>
+
+              {/* V2 Header */}
+              <div className="h-4.5 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+                <span className="text-[#84cc16] font-bold">V2 B-ROLL</span>
+                <Eye className="w-2 h-2 text-zinc-500" />
+              </div>
+
+              {/* V1 Header */}
+              <div className="h-4.5 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+                <span className="text-zinc-300 font-bold">V1 HOST</span>
+                <Lock className="w-2 h-2 text-zinc-500" />
+              </div>
+
+              {/* A1 Header */}
+              <div className="h-4.5 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    cinematicAudio.play("toggle");
+                    setIsMuted(!isMuted);
+                  }}
+                  className={`flex items-center gap-1 font-bold cursor-pointer transition-all hover:brightness-125 ${
+                    isMuted ? "text-rose-400" : "text-[#84cc16]"
+                  }`}
+                  title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                >
+                  {isMuted ? <VolumeX className="w-2 h-2" /> : <Volume2 className="w-2 h-2" />}
+                  <span>A1 AUD</span>
+                </button>
+                <span className="text-[6.5px] text-zinc-500">0dB</span>
+              </div>
             </div>
 
-          </div>
-        </div>
+            {/* Main Timeline Workspace (Ruler + Lanes + Playhead) */}
+            <div 
+              onClick={handleTimelineClick}
+              className={`flex-1 relative flex flex-col justify-between overflow-hidden select-none transition-all ${
+                activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
+              }`}
+              title={activeTool === "blade" ? "Click to Slice B-Roll Cut at timestamp" : "Click anywhere on timeline to seek playhead"}
+            >
+              {/* Red Laser Playhead Indicator spanning Ruler & Tracks */}
+              <div
+                style={{
+                  left: `${Math.min(99.5, Math.max(0.5, (currentTime / selectedHook.durationSec) * 100))}%`,
+                }}
+                className="absolute top-0 bottom-0 z-30 pointer-events-none -translate-x-1/2 flex flex-col items-center"
+              >
+                <div className="w-2 h-2 bg-red-500 rotate-45 border border-white/80 shadow-[0_0_8px_rgba(239,68,68,1)] shrink-0 -mt-0.5" />
+                <div className="w-[1.5px] flex-1 bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.9)]" />
+              </div>
 
-      </div>
+              {/* SMPTE Timecode Ruler with Subdivision Ticks */}
+              <div className="h-3 bg-[#080c14] rounded-t border border-white/10 relative overflow-hidden flex items-end">
+                {Array.from({ length: Math.ceil(selectedHook.durationSec) + 1 }).map((_, sec) => {
+                  if (sec > selectedHook.durationSec) return null;
+                  const leftPct = (sec / selectedHook.durationSec) * 100;
+                  return (
+                    <React.Fragment key={sec}>
+                      {/* Major tick & label */}
+                      <div
+                        style={{ left: `${leftPct}%` }}
+                        className="absolute bottom-0 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                      >
+                        <span className="text-[6px] font-mono text-zinc-400 leading-none mb-0.5 select-none font-semibold">
+                          {sec}s
+                        </span>
+                        <div className="w-[1px] h-1.5 bg-white/40" />
+                      </div>
+
+                      {/* Minor ticks (quarter seconds) */}
+                      {[0.25, 0.5, 0.75].map((sub) => {
+                        const subSec = sec + sub;
+                        if (subSec >= selectedHook.durationSec) return null;
+                        const subPct = (subSec / selectedHook.durationSec) * 100;
+                        return (
+                          <div
+                            key={sub}
+                            style={{ left: `${subPct}%` }}
+                            className="absolute bottom-0 -translate-x-1/2 pointer-events-none"
+                          >
+                            <div className={`w-[1px] ${sub === 0.5 ? "h-1 bg-white/25" : "h-0.5 bg-white/15"}`} />
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              {/* Track V2: Livepeer AI B-Roll */}
+              <div className="h-4.5 bg-black/60 rounded border border-white/5 relative overflow-hidden flex items-center">
+                {brollCuts.map((cut) => {
+                  const leftPct = (cut.startSec / selectedHook.durationSec) * 100;
+                  const widthPct = (cut.durationSec / selectedHook.durationSec) * 100;
+                  return (
+                    <div
+                      key={cut.id}
+                      onClick={() => handleSeek(cut.startSec)}
+                      onDoubleClick={() => setRefiningCut(cut)}
+                      style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                      className="absolute h-full bg-[#84cc16]/15 hover:bg-[#84cc16]/25 border border-[#84cc16]/60 rounded px-1.5 flex items-center justify-between text-[6.5px] font-mono text-[#84cc16] cursor-pointer hover:brightness-125 truncate group transition-colors shadow-[0_0_8px_rgba(132,204,22,0.15)]"
+                      title="Click to seek · Double-click to open Slice Surgery"
+                    >
+                      <span className="truncate font-bold">{cut.triggerPhrase}</span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="text-[6px] opacity-80">{cut.durationSec}s</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRefiningCut(cut);
+                          }}
+                          className="hidden group-hover:inline px-1 py-0.5 rounded bg-black/80 text-white hover:text-[#84cc16] border border-white/20 text-[5.5px] cursor-pointer"
+                          title="Refine Slice Prompt on Livepeer MCP"
+                        >
+                          Refine
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Track V1: Host A-Roll */}
+              <div className="h-4.5 bg-[#0c121e] rounded border border-white/10 relative overflow-hidden flex items-center px-2 text-[6.5px] font-mono text-zinc-300">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="w-1 h-1 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="font-bold text-white">{selectedHook.sourceSpeaker}</span>
+                  <span className="text-zinc-500">· 9:16 Face Tracked Primary Cut · 1080x1920 60FPS</span>
+                </div>
+              </div>
+
+              {/* Track A1: Audio Waveform Canvas */}
+              <div className="h-4.5 rounded border border-white/10 overflow-hidden bg-black/80 relative">
+                <canvas ref={timelineCanvasRef} className="w-full h-full block" />
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      )}
 
       {/* 4. PRO NLE KEYBOARD SHORTCUTS MODAL */}
       {isShortcutsOpen && (
