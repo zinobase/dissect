@@ -22,6 +22,14 @@ import {
   Wand2,
   Sliders,
   Edit3,
+  Plus,
+  Volume2,
+  VolumeX,
+  Heart,
+  MessageCircle,
+  Bookmark,
+  Share2,
+  Disc,
 } from "lucide-react";
 import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer } from "../../lib/broll-synthesizer";
 import { VideoHook, BrollCut, TranscriptWord } from "../../lib/types";
@@ -32,8 +40,6 @@ import { SliceRefineModal } from "../../components/SliceRefineModal";
 import { optimizeCinematicPrompt, DirectorialStyle } from "../../lib/prompt-optimizer";
 import { livepeerMcp } from "../../lib/livepeerMcp";
 import { cinematicAudio } from "../../lib/cinematic-audio";
-import { Plus } from "lucide-react";
-import { Heart, MessageCircle, Bookmark, Share2, Disc } from "lucide-react";
 
 type PlatformSafeMode = "tiktok" | "reels" | "shorts";
 type SubtitleStyle = "hormozi" | "mrbeast" | "cyber" | "minimal";
@@ -165,6 +171,7 @@ export default function DissectStudioPage() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const timelineCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Active B-Roll cut for current playhead
   const activeBroll = brollCuts.find(
@@ -177,16 +184,91 @@ export default function DissectStudioPage() {
   );
   const activeWordObj = selectedHook.transcript[activeWordIndex];
 
-  // Playhead loop
+  // 1. Sync Audio Source when Selected Hook changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const targetSrc = selectedHook.audioUrl || "/audio/master_voice.mp3";
+    if (!audio.src.endsWith(targetSrc)) {
+      audio.src = targetSrc;
+      audio.currentTime = 0;
+      if (isPlaying) {
+        audio.play().catch(() => {
+          // Gracefully handles browser autoplay limitations
+        });
+      }
+    }
+  }, [selectedHook.id, selectedHook.audioUrl]);
+
+  // 2. Sync Play / Pause state with audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying]);
+
+  // 3. Sync Mute state
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  // 4. Authentic NLE Audio Ducking: Speech audio ducks slightly during B-Roll cutaways
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = activeBroll ? 0.7 : 1.0;
+    }
+  }, [activeBroll]);
+
+  // 5. Unlock browser audio on first user interaction
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (audioRef.current && isPlaying && audioRef.current.paused) {
+        audioRef.current.play().catch(() => {});
+      }
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    };
+    window.addEventListener("click", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    window.addEventListener("touchstart", unlockAudio);
+    return () => {
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    };
+  }, [isPlaying]);
+
+  // 6. Timeline Playhead Loop — locked to actual audio clock when playing
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      setCurrentTime((prev) => {
-        const next = prev + 0.1;
-        if (next >= selectedHook.durationSec) return 0;
-        return +next.toFixed(2);
-      });
-    }, 100);
+      const audio = audioRef.current;
+      if (audio && !audio.paused && !isNaN(audio.duration) && audio.duration > 0) {
+        const audioTime = audio.currentTime;
+        if (audioTime >= selectedHook.durationSec) {
+          audio.currentTime = 0;
+          setCurrentTime(0);
+        } else {
+          setCurrentTime(+audioTime.toFixed(2));
+        }
+      } else {
+        setCurrentTime((prev) => {
+          const next = prev + 0.1;
+          if (next >= selectedHook.durationSec) {
+            if (audio) audio.currentTime = 0;
+            return 0;
+          }
+          return +next.toFixed(2);
+        });
+      }
+    }, 50);
     return () => clearInterval(interval);
   }, [isPlaying, selectedHook.durationSec]);
 
@@ -490,6 +572,11 @@ export default function DissectStudioPage() {
     setSelectedHook(newHook);
     setBrollCuts([]);
     setCurrentTime(0);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = newHook.audioUrl || "/audio/master_voice.mp3";
+      if (isPlaying) audioRef.current.play().catch(() => {});
+    }
     setCustomPrompt(newHook.quoteText);
   };
 
@@ -498,10 +585,22 @@ export default function DissectStudioPage() {
     const cuts = getBrollForHook(hook.id, hook);
     setBrollCuts(cuts);
     setCurrentTime(0);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = hook.audioUrl || "/audio/master_voice.mp3";
+      if (isPlaying) audioRef.current.play().catch(() => {});
+    }
   };
 
   const handleSeek = (sec: number) => {
-    setCurrentTime(Math.min(selectedHook.durationSec, Math.max(0, +sec.toFixed(2))));
+    const clamped = Math.min(selectedHook.durationSec, Math.max(0, +sec.toFixed(2)));
+    setCurrentTime(clamped);
+    if (audioRef.current) {
+      audioRef.current.currentTime = clamped;
+      if (isPlaying && audioRef.current.paused) {
+        audioRef.current.play().catch(() => {});
+      }
+    }
   };
 
   const handleTimelineClick = async (e: React.MouseEvent<HTMLDivElement>) => {
@@ -942,9 +1041,23 @@ export default function DissectStudioPage() {
                 <span className="px-1.5 py-0.5 rounded-full bg-black/75 border border-white/10 text-[#84cc16] font-bold">
                   {activeBroll ? "AI B-ROLL · LIVEPEER" : "HOST A-ROLL"}
                 </span>
-                <span className="px-1.5 py-0.5 rounded-full bg-black/75 border border-white/10 text-zinc-300">
-                  {currentTime.toFixed(1)}s · {platformSafeMode.toUpperCase()} SAFE
-                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    cinematicAudio.play("toggle");
+                    setIsMuted(!isMuted);
+                  }}
+                  className={`px-1.5 py-0.5 rounded-full bg-black/80 border text-[7.5px] font-mono flex items-center gap-1 cursor-pointer transition-all active:scale-95 pointer-events-auto ${
+                    isMuted
+                      ? "border-rose-500/40 text-rose-400"
+                      : "border-white/15 text-[#84cc16] hover:border-white/30"
+                  }`}
+                  title={isMuted ? "Audio Muted - Click to Unmute" : "Audio Live - Click to Mute"}
+                >
+                  {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
+                  <span>{isMuted ? "MUTED" : "LIVE AUDIO"}</span>
+                </button>
               </div>
 
               {/* 60 FPS Living HTML5 Canvas */}
@@ -962,8 +1075,21 @@ export default function DissectStudioPage() {
                   <div className="space-y-0.5 max-w-[120px]">
                     <div className="text-[8px] font-heading font-bold text-white">@{selectedHook.sourceSpeaker.toLowerCase().replace(/\s+/g, "")}</div>
                     <div className="text-[7px] text-zinc-300 line-clamp-1">{selectedHook.title}</div>
-                    <div className="text-[6px] font-mono text-[#84cc16] flex items-center gap-1">
-                      <span>♫ Original Audio · Livepeer Subnet</span>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        cinematicAudio.play("toggle");
+                        setIsMuted(!isMuted);
+                      }}
+                      className="text-[6px] font-mono text-[#84cc16] flex items-center gap-1 cursor-pointer pointer-events-auto hover:brightness-125"
+                      title={isMuted ? "Audio Muted - Click to Unmute" : "Audio Playing - Click to Mute"}
+                    >
+                      {isMuted ? (
+                        <VolumeX className="w-2.5 h-2.5 text-rose-400" />
+                      ) : (
+                        <Disc className={`w-2.5 h-2.5 ${isPlaying ? "animate-spin" : ""}`} />
+                      )}
+                      <span>{isMuted ? "Audio Muted" : "Original Audio · Livepeer Subnet"}</span>
                     </div>
                   </div>
 
@@ -1113,6 +1239,21 @@ export default function DissectStudioPage() {
                     title="Skip to end"
                   >
                     <SkipForward className="w-3 h-3" />
+                  </button>
+                  <div className="w-[1px] h-3 bg-white/15 mx-0.5" />
+                  <button
+                    onClick={() => {
+                      cinematicAudio.play("toggle");
+                      setIsMuted(!isMuted);
+                    }}
+                    className={`p-1 rounded-full transition-all active:scale-95 ${
+                      isMuted
+                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                        : "bg-white/5 text-zinc-300 hover:text-white hover:bg-white/10"
+                    }`}
+                    title={isMuted ? "Unmute Studio Audio" : "Mute Studio Audio"}
+                  >
+                    {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
                   </button>
                 </div>
               </div>
@@ -1398,7 +1539,20 @@ export default function DissectStudioPage() {
 
           {/* Track A1: Audio Waveform Canvas */}
           <div className="flex items-center h-6 gap-2">
-            <span className="w-12 text-[8px] font-mono text-amber-400 font-bold">A1 AUDIO</span>
+            <button
+              type="button"
+              onClick={() => {
+                cinematicAudio.play("toggle");
+                setIsMuted(!isMuted);
+              }}
+              className={`w-12 text-[8px] font-mono font-bold flex items-center gap-1 hover:brightness-125 transition-all text-left cursor-pointer ${
+                isMuted ? "text-rose-400" : "text-amber-400"
+              }`}
+              title={isMuted ? "Track Muted - Click to Unmute" : "Track Live - Click to Mute"}
+            >
+              {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
+              <span>A1 AUDIO</span>
+            </button>
             <div className="flex-1 h-full rounded border border-white/5 overflow-hidden">
               <canvas ref={timelineCanvasRef} className="w-full h-full block" />
             </div>
@@ -1432,6 +1586,18 @@ export default function DissectStudioPage() {
         isOpen={isModelDrawerOpen}
         onClose={() => setIsModelDrawerOpen(false)}
         onKeyChange={(k) => setHasCustomKey(!!k)}
+      />
+
+      {/* Synchronized Keynote Speech & Narration Audio Element */}
+      <audio
+        ref={audioRef}
+        src={selectedHook.audioUrl || "/audio/master_voice.mp3"}
+        preload="auto"
+        playsInline
+        loop
+        muted={isMuted}
+        aria-hidden="true"
+        className="hidden"
       />
     </div>
   );

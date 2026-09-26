@@ -18,6 +18,7 @@ export interface VideoHook {
   quoteText: string;
   transcript: TranscriptWord[];
   speakerVideoUrl: string;
+  audioUrl?: string;
 }
 
 export interface BrollCut {

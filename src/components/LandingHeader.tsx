@@ -1,24 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import Link from "next/link";
-import { Scissors, ArrowRight, Activity } from "lucide-react";
+import { Scissors, ArrowRight } from "lucide-react";
 
 export function LandingHeader() {
-  const timecodeRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    let frame = 12;
-    const interval = setInterval(() => {
-      frame = (frame + 1) % 30;
-      const fStr = frame.toString().padStart(2, "0");
-      if (timecodeRef.current) {
-        timecodeRef.current.textContent = `00:14:28:${fStr}`;
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
   const playClickSound = () => {
     try {
       const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -47,12 +33,9 @@ export function LandingHeader() {
             <Scissors className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <span className="font-kinetic font-black text-sm tracking-tight text-white group-hover:text-[#84cc16] transition-colors">
                 DISSECT
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-mono uppercase bg-[#84cc16]/10 text-[#84cc16] border border-[#84cc16]/25 tracking-wider">
-                NLE 9:16
               </span>
             </div>
           </div>
@@ -80,18 +63,6 @@ export function LandingHeader() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 justify-self-end sm:gap-2.5">
-          {/* Subnet Status Capsule */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-[10px] font-mono text-zinc-300">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#84cc16] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#84cc16]" />
-            </span>
-            <span className="text-zinc-400">TC:</span>
-            <span ref={timecodeRef} className="text-white font-bold tabular-nums">00:14:28:12</span>
-            <span className="text-zinc-600">|</span>
-            <span className="text-[#84cc16] font-semibold">LIVEPEER</span>
-          </div>
-
           <Link
             href="/studio"
             onClick={playClickSound}
