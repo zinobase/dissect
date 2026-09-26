@@ -1,5 +1,8 @@
 # Dissect: Autonomous Short-Form Video Re-Cutter & Generative B-Roll Studio
 
+[![Live Application](https://img.shields.io/badge/Live_App-www.dissect.site-00e5ff?style=for-the-badge&logo=vercel)](https://www.dissect.site)
+
+> **Live Application**: [https://www.dissect.site](https://www.dissect.site)  
 > **Transform long-form talking-head streams, keynotes, and podcasts into high-retention 9:16 vertical video reels powered by the Livepeer Agent Creative MCP.**
 
 ---
@@ -86,7 +89,15 @@ Dissect connects directly to the **Livepeer Agent Creative MCP** (`https://agent
 
 ---
 
-## Quickstart & Local Setup
+## Live Application & Quickstart
+
+### Live Production Deployment
+Experience the production studio directly in your browser:  
+**[https://www.dissect.site](https://www.dissect.site)**
+
+---
+
+### Local Installation
 
 ### Prerequisites
 - Node.js >= 18.x

@@ -179,3 +179,41 @@ body {
   animation: packet-rail-hop 6s ease-in-out infinite alternate;
   will-change: transform;
 }
+
+/* Multi-Device Safe Area Insets & Touch Ergonomics */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Fast tap targets and smooth touch panning */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Hide scrollbar on mobile horizontal conveyor docks */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Device Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

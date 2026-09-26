@@ -624,8 +624,8 @@ export default function DissectLandingPage() {
                 </div>
               </div>
 
-              {/* Interactive SVG Rail Graphic */}
-              <div className="p-6 sm:p-10 overflow-x-auto">
+              {/* Interactive SVG Rail Graphic (Desktop XL View) */}
+              <div className="hidden xl:block p-6 sm:p-10 overflow-x-auto">
                 <div className="min-w-[62rem]">
                   <svg 
                     viewBox="0 0 1200 240" 
@@ -777,8 +777,8 @@ export default function DissectLandingPage() {
                 </div>
               </div>
 
-              {/* Mobile Fallback Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5 border-t border-white/[0.08] xl:hidden font-mono text-xs">
+              {/* Mobile & Tablet Interactive Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5 xl:hidden font-mono text-xs">
                 {PIPELINE_STAGES.map((st, idx) => (
                   <div 
                     key={st.step}

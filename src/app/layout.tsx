@@ -1,5 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#07080d",
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Dissect | Autonomous Generative B-Roll & Social Clip Re-Cutter",
