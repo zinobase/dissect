@@ -65,7 +65,7 @@ export function LandingHeader() {
           <Link
             href="/studio"
             onClick={playClickSound}
-            className="group inline-flex h-9 items-center gap-1.5 rounded-full bg-[#84cc16] px-4 text-[0.6875rem] font-semibold tracking-[0.12em] text-black uppercase transition-all hover:bg-[#a3e635] shadow-[0_0_20px_rgba(132,204,22,0.25)] active:scale-[0.98] cursor-pointer"
+            className="group inline-flex h-9 items-center gap-1.5 rounded-full bg-gradient-to-b from-[#84cc16] via-[#74b815] to-[#598f0e] px-4 text-[0.6875rem] font-semibold tracking-[0.12em] text-black uppercase transition-all hover:brightness-110 hover:shadow-[0_0_20px_rgba(132,204,22,0.35)] shadow-[0_2px_10px_rgba(132,204,22,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] border border-[#84cc16]/90 active:scale-[0.98] cursor-pointer"
           >
             <span>Launch Studio</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

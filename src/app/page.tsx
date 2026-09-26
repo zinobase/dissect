@@ -163,14 +163,14 @@ export default function DissectLandingPage() {
           {/* Center Horizontal Volumetric Beam with Animated Light Packet */}
           <div aria-hidden="true" className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[clamp(5rem,9vw,9rem)] w-screen -translate-x-1/2 -translate-y-1/2 [mask-image:linear-gradient(to_right,#000_0%,transparent_18%,transparent_82%,#000_100%)]">
             <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(132,204,22,0.06)_50%,transparent_100%)]" />
-              <div className="absolute inset-x-0 top-1/2 h-[clamp(1.75rem,3.5vw,3.5rem)] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent_0%,rgba(132,204,22,0.14)_50%,transparent_100%)]" />
-              <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[rgba(132,204,22,0.7)] shadow-[0_0_18px_4px_rgba(132,204,22,0.35)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(132,204,22,0.03)_50%,transparent_100%)]" />
+              <div className="absolute inset-x-0 top-1/2 h-[clamp(1.75rem,3.5vw,3.5rem)] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent_0%,rgba(132,204,22,0.08)_50%,transparent_100%)]" />
+              <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[rgba(132,204,22,0.25)] shadow-[0_0_16px_2px_rgba(132,204,22,0.2)]" />
               {/* Traveling Beam Packet */}
               <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center">
-                <div className="relative h-5 w-72 animate-beam-packet">
-                  <div className="absolute inset-0 bg-radial from-[#84cc16]/40 to-transparent blur-sm" />
-                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[linear-gradient(to_right,transparent,rgb(132,204,22)_50%,transparent)] shadow-[0_0_12px_#84cc16]" />
+                <div className="relative h-5 w-72 animate-beam-packet opacity-60">
+                  <div className="absolute inset-0 bg-radial from-[#84cc16]/30 to-transparent blur-sm" />
+                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[linear-gradient(to_right,transparent,rgb(132,204,22)_50%,transparent)] shadow-[0_0_10px_#84cc16]" />
                 </div>
               </div>
             </div>
@@ -197,14 +197,14 @@ export default function DissectLandingPage() {
             </div>
 
             {/* Technical Eyebrow Pill */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/25 text-[10px] font-mono text-[#84cc16] tracking-wider uppercase mb-6">
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-black/60 border border-white/15 text-[10px] font-mono text-[#84cc16] tracking-wider uppercase mb-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#84cc16] opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#84cc16]" />
               </span>
-              <span>Autonomous B-Roll Re-Cutter</span>
+              <span className="text-zinc-200">Autonomous B-Roll Re-Cutter</span>
               <span className="text-zinc-600">·</span>
-              <span className="text-zinc-300">Livepeer Subnet</span>
+              <span className="text-[#84cc16]">Livepeer Subnet</span>
             </div>
 
             {/* Monumental Dual-Statement Headline */}
@@ -213,7 +213,7 @@ export default function DissectLandingPage() {
                 Speeches anyone can record.
               </h1>
               <h1 className="font-kinetic font-black text-[clamp(2.4rem,6vw,5.2rem)] leading-[0.94] tracking-tight text-white text-balance">
-                Retention only <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#84cc16] via-[#a3e635] to-[#06b6d4]">cadence can hold.</span>
+                Retention only <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#84cc16] via-[#a3e635] to-[#d9f99d] drop-shadow-[0_0_25px_rgba(132,204,22,0.25)]">cadence can hold.</span>
               </h1>
             </div>
 
@@ -227,7 +227,7 @@ export default function DissectLandingPage() {
               <Link
                 href="/studio"
                 onClick={() => playProceduralSound(1400)}
-                className="action-sheen group inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#84cc16] px-8 text-xs font-heading font-semibold tracking-[0.12em] text-black uppercase transition-all hover:bg-[#a3e635] shadow-[0_0_25px_rgba(132,204,22,0.35)] active:scale-[0.98] cursor-pointer"
+                className="action-sheen group inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#84cc16] via-[#74b815] to-[#598f0e] px-8 text-xs font-heading font-semibold tracking-[0.12em] text-black uppercase transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(132,204,22,0.45)] shadow-[0_3px_16px_rgba(132,204,22,0.3),inset_0_1px_0_rgba(255,255,255,0.45)] border border-[#84cc16]/90 active:scale-[0.98] cursor-pointer"
               >
                 <span>Launch Studio</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -236,7 +236,7 @@ export default function DissectLandingPage() {
               <a
                 href="#demo"
                 onClick={() => playProceduralSound(950)}
-                className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.03] px-7 text-xs font-mono font-medium tracking-[0.12em] text-zinc-300 uppercase transition-all hover:border-white/30 hover:text-white hover:bg-white/[0.06] cursor-pointer"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.03] px-7 text-xs font-mono font-medium tracking-[0.12em] text-zinc-300 uppercase transition-all hover:border-white/30 hover:text-white hover:bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] cursor-pointer"
               >
                 <span>Watch 9:16 Demo ↓</span>
               </a>
@@ -860,7 +860,7 @@ export default function DissectLandingPage() {
                 <Link
                   href="/studio"
                   onClick={() => playProceduralSound(1600)}
-                  className="action-sheen group inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#84cc16] px-8 text-xs font-heading font-semibold tracking-[0.12em] text-black uppercase transition-all hover:bg-[#a3e635] shadow-[0_0_25px_rgba(132,204,22,0.35)] active:scale-[0.98] cursor-pointer"
+                  className="action-sheen group inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#84cc16] via-[#74b815] to-[#598f0e] px-8 text-xs font-heading font-semibold tracking-[0.12em] text-black uppercase transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(132,204,22,0.45)] shadow-[0_3px_16px_rgba(132,204,22,0.3),inset_0_1px_0_rgba(255,255,255,0.45)] border border-[#84cc16]/90 active:scale-[0.98] cursor-pointer"
                 >
                   <span>Launch NLE Studio</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -871,7 +871,7 @@ export default function DissectLandingPage() {
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => playProceduralSound(950)}
-                  className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.03] px-7 text-xs font-mono font-medium tracking-[0.12em] text-zinc-300 uppercase transition-all hover:border-white/30 hover:text-white cursor-pointer"
+                  className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.03] px-7 text-xs font-mono font-medium tracking-[0.12em] text-zinc-300 uppercase transition-all hover:border-white/30 hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] cursor-pointer"
                 >
                   <span>Livepeer Creative MCP ↗</span>
                 </a>

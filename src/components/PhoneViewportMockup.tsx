@@ -96,10 +96,10 @@ export function PhoneViewportMockup() {
               setSelectedScenarioIdx(idx);
               setProgress(15);
             }}
-            className={`px-3 py-1.5 rounded-full text-xs font-heading font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-full text-xs font-heading font-medium transition-all cursor-pointer ${
               selectedScenarioIdx === idx
-                ? "bg-[#84cc16] text-black font-bold shadow-[0_0_15px_rgba(132,204,22,0.4)]"
-                : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] border border-white/10"
+                ? "bg-gradient-to-b from-[#84cc16] via-[#74b815] to-[#598f0e] text-black font-semibold shadow-[0_2px_10px_rgba(132,204,22,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] border border-[#84cc16]/90"
+                : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
             }`}
           >
             {sc.creator}
@@ -195,7 +195,7 @@ export function PhoneViewportMockup() {
           <div className="relative z-20 px-4 pb-4">
             <div className="w-full h-1 rounded-full bg-white/20 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#84cc16] to-[#06b6d4] transition-all duration-150"
+                className="h-full bg-gradient-to-r from-[#84cc16] to-[#a3e635] shadow-[0_0_8px_#84cc16] transition-all duration-150"
                 style={{ width: `${progress}%` }}
               />
             </div>
