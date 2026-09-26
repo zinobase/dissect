@@ -19,7 +19,7 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     sourceTitle: "Nvidia GTC Keynote 2025",
     topicText: "Every data center in the world is transforming into an AI generator factory, running non-stop to produce tokens that represent physical intelligence.",
     category: "Physical AI",
-    audioUrl: "/audio/master_voice.mp3",
+    audioUrl: "/audio/jensen-gtc.mp3",
   },
   {
     id: "ilya-world-models",
@@ -28,7 +28,7 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     sourceTitle: "Superintelligence Address",
     topicText: "When you scale compute across millions of decentralized GPU nodes, the model stops interpolating and begins synthesizing genuine internal world models.",
     category: "Decentralized Compute",
-    audioUrl: "/audio/launch-demo.mp3",
+    audioUrl: "/audio/ilya-world-models.mp3",
   },
   {
     id: "karpathy-software2",
@@ -37,7 +37,7 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     sourceTitle: "Autonomous Systems Keynote",
     topicText: "Photons hit the CMOS sensor, get converted into latent tensors in real time, and direct physical actuators without a single line of heuristic code.",
     category: "Robotic Vision",
-    audioUrl: "/audio/walkthrough_demo.mp3",
+    audioUrl: "/audio/karpathy-software2.mp3",
   },
   {
     id: "altman-reasoning",
@@ -46,7 +46,7 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     sourceTitle: "Frontier Intelligence Forum",
     topicText: "When you give the model test-time compute to think through multi-step hypotheses before answering, the reasoning capability scales exponentially.",
     category: "Test-Time Compute",
-    audioUrl: "/audio/dissect_demo_narration.mp3",
+    audioUrl: "/audio/altman-reasoning.mp3",
   },
 ];
 
@@ -82,7 +82,7 @@ export function createDynamicHookFromKeynote(keynote: StarterKeynote): VideoHook
     quoteText: keynote.topicText,
     speakerVideoUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg",
     transcript,
-    audioUrl: keynote.audioUrl || "/audio/master_voice.mp3",
+    audioUrl: keynote.audioUrl || `/api/tts?id=${keynote.id}&text=${encodeURIComponent(keynote.topicText)}`,
   };
 }
 

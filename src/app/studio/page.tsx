@@ -184,12 +184,14 @@ export default function DissectStudioPage() {
   );
   const activeWordObj = selectedHook.transcript[activeWordIndex];
 
-  // 1. Sync Audio Source when Selected Hook changes
+  // 1. Sync Audio Source when Selected Hook changes — speaks whatever text is in the active transcript
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const targetSrc = selectedHook.audioUrl || "/audio/master_voice.mp3";
-    if (!audio.src.endsWith(targetSrc)) {
+    const targetSrc =
+      selectedHook.audioUrl ||
+      `/api/tts?text=${encodeURIComponent(selectedHook.quoteText || selectedHook.title)}`;
+    if (!audio.src.endsWith(targetSrc) && !audio.src.includes(encodeURIComponent(selectedHook.quoteText || ""))) {
       audio.src = targetSrc;
       audio.currentTime = 0;
       if (isPlaying) {
@@ -198,7 +200,7 @@ export default function DissectStudioPage() {
         });
       }
     }
-  }, [selectedHook.id, selectedHook.audioUrl]);
+  }, [selectedHook.id, selectedHook.audioUrl, selectedHook.quoteText]);
 
   // 2. Sync Play / Pause state with audio element
   useEffect(() => {
@@ -572,9 +574,10 @@ export default function DissectStudioPage() {
     setSelectedHook(newHook);
     setBrollCuts([]);
     setCurrentTime(0);
+    const targetSrc = newHook.audioUrl || `/api/tts?text=${encodeURIComponent(newHook.quoteText || newHook.title)}`;
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.src = newHook.audioUrl || "/audio/master_voice.mp3";
+      audioRef.current.src = targetSrc;
       if (isPlaying) audioRef.current.play().catch(() => {});
     }
     setCustomPrompt(newHook.quoteText);
@@ -585,9 +588,10 @@ export default function DissectStudioPage() {
     const cuts = getBrollForHook(hook.id, hook);
     setBrollCuts(cuts);
     setCurrentTime(0);
+    const targetSrc = hook.audioUrl || `/api/tts?text=${encodeURIComponent(hook.quoteText || hook.title)}`;
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.src = hook.audioUrl || "/audio/master_voice.mp3";
+      audioRef.current.src = targetSrc;
       if (isPlaying) audioRef.current.play().catch(() => {});
     }
   };
@@ -901,12 +905,7 @@ export default function DissectStudioPage() {
                     key={h.id}
                     type="button"
                     onClick={() => {
-                      setSelectedHook(h);
-                      const matchedBroll = getBrollForHook(h.id, h);
-                      if (matchedBroll && matchedBroll.length > 0) {
-                        setBrollCuts(matchedBroll);
-                      }
-                      setCurrentTime(0);
+                      handleSelectHook(h);
                       cinematicAudio.play("click");
                     }}
                     className={`px-3 py-1.5 rounded-lg border text-left whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
@@ -1591,11 +1590,31 @@ export default function DissectStudioPage() {
       {/* Synchronized Keynote Speech & Narration Audio Element */}
       <audio
         ref={audioRef}
-        src={selectedHook.audioUrl || "/audio/master_voice.mp3"}
+        src={selectedHook.audioUrl || `/api/tts?text=${encodeURIComponent(selectedHook.quoteText || selectedHook.title)}`}
         preload="auto"
         playsInline
         loop
         muted={isMuted}
+        onLoadedMetadata={(e) => {
+          const d = e.currentTarget.duration;
+          if (d && !isNaN(d) && isFinite(d) && d > 2) {
+            setSelectedHook((prev) => {
+              if (Math.abs(prev.durationSec - d) < 0.5) return prev;
+              const ratio = d / Math.max(1, prev.durationSec);
+              const scaledTranscript = prev.transcript.map((w) => ({
+                ...w,
+                startSec: +(w.startSec * ratio).toFixed(2),
+                endSec: +(w.endSec * ratio).toFixed(2),
+              }));
+              return {
+                ...prev,
+                durationSec: +d.toFixed(2),
+                endSec: +d.toFixed(2),
+                transcript: scaledTranscript,
+              };
+            });
+          }
+        }}
         aria-hidden="true"
         className="hidden"
       />

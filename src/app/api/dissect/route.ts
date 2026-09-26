@@ -411,14 +411,6 @@ export async function POST(req: NextRequest) {
     const keyTermsCount = transcript.filter((t) => t.isKeyTerm).length;
     const computedRetention = +(92.5 + Math.min(6.5, (keyTermsCount / Math.max(1, words.length)) * 18)).toFixed(1);
 
-    const sampleVoices = [
-      "/audio/master_voice.mp3",
-      "/audio/launch-demo.mp3",
-      "/audio/walkthrough_demo.mp3",
-      "/audio/dissect_demo_narration.mp3",
-    ];
-    const voiceIndex = hashBrief(monologueText) % sampleVoices.length;
-
     const hook: VideoHook = {
       id: `hook-${Date.now()}`,
       title: resolvedTitle,
@@ -432,7 +424,7 @@ export async function POST(req: NextRequest) {
       quoteText: monologueText,
       speakerVideoUrl: toProxiedUrl(speakerVideoUrl),
       transcript,
-      audioUrl: sampleVoices[voiceIndex],
+      audioUrl: `/api/tts?text=${encodeURIComponent(monologueText)}`,
     };
 
     return NextResponse.json({
