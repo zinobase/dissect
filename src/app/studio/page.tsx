@@ -173,6 +173,8 @@ export default function DissectStudioPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const timelineCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const activeWordElRef = useRef<HTMLSpanElement | null>(null);
+  const transcriptContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Active B-Roll cut for current playhead
   const activeBroll = brollCuts.find(
@@ -184,6 +186,17 @@ export default function DissectStudioPage() {
     (w) => currentTime >= w.startSec && currentTime <= w.endSec
   );
   const activeWordObj = selectedHook.transcript[activeWordIndex];
+
+  // Auto-scroll transcript container smoothly so active spoken word is always visible
+  useEffect(() => {
+    if (activeWordElRef.current && transcriptContainerRef.current) {
+      activeWordElRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [activeWordIndex]);
 
   // 1. Sync Audio Source when Selected Hook changes — speaks whatever text is in the active transcript
   useEffect(() => {
@@ -796,77 +809,72 @@ export default function DissectStudioPage() {
       {/* 2. MAIN 50/50 SPLIT: SCRIPT WORKSPACE (LEFT) & 9:16 RETENTION STAGE (RIGHT) */}
       <div className="flex-1 grid grid-cols-12 min-h-0 overflow-hidden divide-x divide-white/10">
         
-        {/* LEFT 6 COLUMNS: WORD-LEVEL SCRIPT WORKSPACE */}
-        <div className="col-span-6 h-full overflow-y-auto flex flex-col bg-[#06080e] p-5 space-y-4">
+        {/* LEFT 6 COLUMNS: WORD-LEVEL SCRIPT WORKSPACE (Zero-Cramping, Auto-Scrolling, Fully Visible) */}
+        <div className="col-span-6 h-full flex flex-col bg-[#06080e] p-4 gap-3 overflow-hidden select-none">
           
-          {/* Script Toolbar */}
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+          {/* Header Toolbar */}
+          <div className="flex items-center justify-between pb-1 border-b border-white/10 shrink-0">
             <span className="text-xs font-mono font-semibold text-zinc-200 uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Word-Level Transcript & Telemetry</span>
+              <FileText className="w-3.5 h-3.5 text-[#84cc16]" />
+              <span>Word-Level Script & Telemetry</span>
             </span>
-            <span className="text-[10px] font-mono text-zinc-300 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10">
-              Livepeer Whisper-v3
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-[#84cc16] px-2 py-0.5 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
+                <span>Livepeer Whisper-v3 Synced</span>
+              </span>
+            </div>
           </div>
 
-          {/* Prominent Always-Visible User Input: Direct Video / Script Ingest */}
-          <div className="p-3.5 rounded-xl bg-[#090c14] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.5)] space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-zinc-200 font-medium flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
+          {/* Sleek Always-Visible Dissect Input Bar */}
+          <div className="p-2.5 rounded-xl bg-[#090c14] border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.4)] shrink-0 space-y-2">
+            <div className="flex items-center justify-between text-[10.5px] font-mono">
+              <span className="text-zinc-200 font-semibold flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#84cc16]" />
                 <span>Dissect Any Video, Podcast, or Monologue:</span>
               </span>
-              <span className="text-zinc-500 text-[9px]">Livepeer MCP Agent</span>
+              <span className="text-[9px] font-mono text-zinc-400 px-2 py-0.5 rounded-full bg-white/[0.03] border border-white/10">
+                Livepeer MCP Agent
+              </span>
             </div>
 
-            <form onSubmit={handleDirectIngest} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={directSpeakerName}
-                  onChange={(e) => setDirectSpeakerName(e.target.value)}
-                  placeholder="Speaker..."
-                  className="w-28 bg-black/60 border border-white/10 focus:border-white/30 text-xs font-mono text-white px-2.5 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]"
-                />
-                <input
-                  type="text"
-                  value={directInputText}
-                  onChange={(e) => setDirectInputText(e.target.value)}
-                  placeholder="Paste YouTube URL or type any monologue paragraph to dissect..."
-                  className="flex-1 bg-black/60 border border-white/10 focus:border-white/30 text-xs font-mono text-white px-3 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2 text-[8.5px] font-mono text-zinc-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
-                  <span>Decentralized transcription & face-tracking via Livepeer MCP</span>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isDirectIngesting || !directInputText.trim()}
-                  className="px-4 py-1.5 rounded-full bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(132,204,22,0.35)] disabled:opacity-40 cursor-pointer"
-                >
-                  {isDirectIngesting ? (
-                    <>
-                      <RefreshCw className="w-3 h-3 animate-spin text-black" />
-                      <span>Dissecting on Livepeer...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Scissors className="w-3 h-3 text-black" />
-                      <span>Dissect on Livepeer</span>
-                    </>
-                  )}
-                </button>
-              </div>
+            <form onSubmit={handleDirectIngest} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={directSpeakerName}
+                onChange={(e) => setDirectSpeakerName(e.target.value)}
+                placeholder="Speaker..."
+                className="w-24 sm:w-28 bg-black/60 border border-white/10 focus:border-[#84cc16]/50 text-xs font-mono text-white px-2.5 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)] shrink-0"
+              />
+              <input
+                type="text"
+                value={directInputText}
+                onChange={(e) => setDirectInputText(e.target.value)}
+                placeholder="Paste YouTube URL or type any monologue to dissect..."
+                className="flex-1 min-w-0 bg-black/60 border border-white/10 focus:border-[#84cc16]/50 text-xs font-mono text-white px-3 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]"
+              />
+              <button
+                type="submit"
+                disabled={isDirectIngesting || !directInputText.trim()}
+                className="px-3.5 py-1.5 rounded-lg bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-[0_0_12px_rgba(132,204,22,0.35)] disabled:opacity-40 shrink-0 cursor-pointer"
+              >
+                {isDirectIngesting ? (
+                  <>
+                    <RefreshCw className="w-3 h-3 animate-spin text-black" />
+                    <span>Dissecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Scissors className="w-3 h-3 text-black" />
+                    <span>Dissect</span>
+                  </>
+                )}
+              </button>
             </form>
 
-            {/* Active Livepeer Dissection Telemetry Progress */}
+            {/* Active Livepeer Dissection Progress */}
             {isDirectIngesting && (
-              <div className="p-3 rounded-lg bg-[#0b0f18] border border-white/15 space-y-2 animate-fadeIn">
+              <div className="p-2.5 rounded-lg bg-[#0b0f18] border border-white/15 space-y-1.5 animate-fadeIn">
                 <div className="flex items-center justify-between text-[10px] font-mono">
                   <span className="text-zinc-200 font-bold flex items-center gap-1.5">
                     <RefreshCw className="w-3 h-3 animate-spin text-[#84cc16]" />
@@ -874,30 +882,24 @@ export default function DissectStudioPage() {
                   </span>
                   <span className="text-zinc-400">Step {ingestStep} of 4</span>
                 </div>
-                <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden">
                   <div
                     className="bg-[#84cc16] h-full transition-all duration-300"
                     style={{ width: `${(ingestStep / 4) * 100}%` }}
                   />
                 </div>
-                <div className="grid grid-cols-4 gap-1 text-[8px] font-mono text-zinc-500 pt-1">
-                  <span className={ingestStep >= 1 ? "text-zinc-200 font-bold" : ""}>1. Audio Track</span>
-                  <span className={ingestStep >= 2 ? "text-zinc-200 font-bold" : ""}>2. Whisper-v3</span>
-                  <span className={ingestStep >= 3 ? "text-zinc-200 font-bold" : ""}>3. Dead Zones</span>
-                  <span className={ingestStep >= 4 ? "text-[#84cc16] font-bold" : ""}>4. 9:16 Stage</span>
-                </div>
               </div>
             )}
           </div>
 
-          {/* Detected High-Retention Hooks Switcher */}
-          <div className="space-y-1.5">
+          {/* Detected High-Retention Hooks Switcher Carousel */}
+          <div className="shrink-0 space-y-1.5">
             <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
               <span className="uppercase tracking-wider font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Scissors className="w-3 h-3 text-zinc-400" />
-                <span>Detected Hooks ({allHooks.length})</span>
+                <Scissors className="w-3 h-3 text-[#84cc16]" />
+                <span>Detected High-Retention Hooks ({allHooks.length})</span>
               </span>
-              <span className="text-[9px] text-zinc-400">Click to preview</span>
+              <span className="text-[9px] text-zinc-400 font-mono">Click to preview hook</span>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
               {allHooks.map((h) => {
@@ -910,126 +912,142 @@ export default function DissectStudioPage() {
                       handleSelectHook(h);
                       cinematicAudio.play("click");
                     }}
-                    className={`px-3 py-1.5 rounded-lg border text-left whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg border text-left whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                       isSelected
-                        ? "bg-white/10 border-white/20 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                        : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
+                        ? "bg-[#84cc16]/15 border-[#84cc16]/50 text-white shadow-[0_0_12px_rgba(132,204,22,0.2)]"
+                        : "bg-white/[0.03] border-white/10 text-zinc-400 hover:border-white/25 hover:text-zinc-200"
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-[#84cc16]" : "bg-zinc-600"}`} />
-                    <span className="text-xs font-heading font-bold">{h.sourceSpeaker}:</span>
-                    <span className="text-[10px] font-mono text-zinc-300 truncate max-w-[120px]">{h.title}</span>
-                    <span className="text-[9px] font-mono text-emerald-400 font-bold">{h.retentionScore}%</span>
+                    <span className={`w-2 h-2 rounded-full ${isSelected ? "bg-[#84cc16] shadow-[0_0_8px_rgba(132,204,22,0.8)]" : "bg-zinc-600"}`} />
+                    <span className="text-xs font-heading font-bold text-white">{h.sourceSpeaker}:</span>
+                    <span className="text-[10px] font-mono text-zinc-300 max-w-[140px] truncate">{h.title}</span>
+                    <span className="text-[10px] font-mono text-[#84cc16] font-bold px-1.5 py-0.5 rounded bg-black/60 border border-[#84cc16]/30">
+                      {h.retentionScore}%
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Speaker Diarization Card */}
-          <div className="p-3 rounded-xl bg-[#090c14] border border-white/10 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-heading font-bold text-xs text-zinc-200">
-              {selectedHook.sourceSpeaker.split(" ").map(n => n[0]).join("")}
+          {/* HERO OF LEFT COLUMN: INTERACTIVE WORD-LEVEL TRANSCRIPT (Auto-Scrolling, Fully Visible) */}
+          <div className="flex-1 min-h-0 p-4 rounded-xl bg-[#090c14] border border-white/10 flex flex-col overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)]">
+            
+            {/* Transcript Subheader */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/30 flex items-center justify-center font-heading font-bold text-xs text-[#84cc16]">
+                  {selectedHook.sourceSpeaker.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <div>
+                  <div className="text-xs font-heading font-bold text-white flex items-center gap-2">
+                    <span>{selectedHook.sourceSpeaker}</span>
+                    <span className="text-[9px] font-mono text-zinc-400 font-normal">· {selectedHook.durationSec}s hook</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-400 line-clamp-1">{selectedHook.title}</div>
+                </div>
+              </div>
+              <div className="text-[9px] font-mono text-zinc-400 flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5">
+                <MousePointer className="w-3 h-3 text-[#84cc16]" />
+                <span>Click any word to seek</span>
+              </div>
             </div>
-            <div>
-              <div className="text-xs font-heading font-bold text-white">{selectedHook.sourceSpeaker}</div>
-              <div className="text-[10px] font-mono text-zinc-400">{selectedHook.title}</div>
-            </div>
-          </div>
 
-          {/* WORD-LEVEL TRANSCRIPT TEXT */}
-          <div className="flex-1 p-4 rounded-xl bg-[#090c14] border border-white/10 space-y-4 overflow-y-auto">
-
-            {/* Word-by-Word Stream */}
-            <div className="leading-loose text-base font-mono space-x-1.5 select-none">
+            {/* Word-by-Word Stream with Smooth Auto-Scroll to Active Word */}
+            <div
+              ref={transcriptContainerRef}
+              className="flex-1 overflow-y-auto pt-3 pb-2 leading-loose text-base font-mono space-x-1.5 pr-2 scrollbar-thin select-none"
+            >
               {selectedHook.transcript.map((item, idx) => {
                 const isActive = currentTime >= item.startSec && currentTime <= item.endSec;
                 const isPast = currentTime > item.endSec;
                 return (
                   <span
                     key={idx}
-                    onClick={() => handleSeek(item.startSec)}
+                    ref={isActive ? activeWordElRef : null}
+                    onClick={() => {
+                      cinematicAudio.play("click");
+                      handleSeek(item.startSec);
+                    }}
+                    title={`${item.word} · ${formatTime(item.startSec)} (Click to seek)`}
                     className={`inline-block px-1.5 py-0.5 rounded cursor-pointer transition-all ${
                       isActive
-                        ? "bg-[#84cc16] text-black font-black shadow-[0_0_16px_rgba(132,204,22,0.6)] scale-105 rounded px-2 py-0.5"
+                        ? "bg-[#84cc16] text-black font-black shadow-[0_0_16px_rgba(132,204,22,0.8)] scale-105 rounded px-2.5 py-0.5"
                         : isPast
-                        ? "text-zinc-200 hover:text-white hover:bg-white/5"
+                        ? "text-zinc-200 hover:text-white hover:bg-white/10"
                         : "text-zinc-500 hover:text-zinc-300"
-                    } ${item.isKeyTerm ? "font-semibold text-zinc-100 underline decoration-zinc-700 underline-offset-4" : ""}`}
+                    } ${item.isKeyTerm ? "font-semibold text-zinc-100 underline decoration-[#84cc16]/50 underline-offset-4" : ""}`}
                   >
                     {item.word}
                   </span>
                 );
               })}
             </div>
-            {/* VIRALITY & RETENTION ANALYTICS DECK */}
-            <div className="pt-3 border-t border-white/10 space-y-3">
-              <div className="flex items-center justify-between text-[11px] font-mono">
-                <span className="text-zinc-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Hook Virality Index</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-300 font-bold text-[10px]">
-                  {selectedHook.retentionScore}/100 · Top 1%
-                </span>
-              </div>
+          </div>
 
-              {/* 3 Metrics Cards */}
-              <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
-                <div className="p-2.5 rounded-lg bg-[#06080e] border border-white/10 space-y-1">
-                  <div className="text-zinc-500 text-[8px] uppercase">Watch-Through</div>
-                  <div className="text-white font-bold text-xs">84.2%</div>
-                  <div className="text-emerald-400 text-[7.5px]">+38% over avg</div>
-                </div>
-                <div className="p-2.5 rounded-lg bg-[#06080e] border border-white/10 space-y-1">
-                  <div className="text-zinc-500 text-[8px] uppercase">Cut Cadence</div>
-                  <div className="text-white font-bold text-xs">1 cut / 3.2s</div>
-                  <div className="text-emerald-400 text-[7.5px]">High Retention</div>
-                </div>
-                <div className="p-2.5 rounded-lg bg-[#06080e] border border-white/10 space-y-1">
-                  <div className="text-zinc-500 text-[8px] uppercase">GPU Subnet</div>
-                  <div className="text-white font-bold text-xs">$0.04 / cut</div>
-                  <div className="text-zinc-300 text-[7.5px]">Livepeer 1.2s</div>
-                </div>
-              </div>
+          {/* Compact Virality & Retention Telemetry Dock (Always Visible at bottom, never hides transcript) */}
+          <div className="p-3 rounded-xl bg-[#090c14] border border-white/10 shrink-0 space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-zinc-200 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-[#84cc16]" />
+                <span>Hook Virality Index</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/30 text-[#84cc16] font-bold text-[10px]">
+                {selectedHook.retentionScore}/100 · Top 1%
+              </span>
+            </div>
 
-              {/* High-Retention Semantic Triggers — derived from the active hook's own key terms */}
-              <div className="p-2.5 rounded-lg bg-[#06080e] border border-white/10 space-y-1.5 text-[10px] font-mono">
-                <div className="text-zinc-400 text-[9px] flex items-center justify-between">
-                  <span>Detected Viral Triggers:</span>
-                  <span className="text-zinc-400">Auto-Grounded</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedHook.transcript
-                    .filter((t) => t.isKeyTerm)
-                    .slice(0, 6)
-                    .map((t) => t.word.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase())
-                    .filter((w, i, arr) => w.length > 2 && arr.indexOf(w) === i)
-                    .slice(0, 4)
-                    .map((kw, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 rounded bg-white/[0.03] border border-white/10 text-zinc-300 text-[8px] hover:border-white/20 transition-colors"
-                      >
-                        #{kw}
-                      </span>
-                    ))}
-                </div>
+            {/* 3 Metrics Cards */}
+            <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
+              <div className="p-2 rounded-lg bg-[#06080e] border border-white/10 space-y-0.5">
+                <div className="text-zinc-400 text-[8px] uppercase tracking-wider">Watch-Through</div>
+                <div className="text-white font-bold text-xs">84.2%</div>
+                <div className="text-emerald-400 text-[8px]">+38% over avg</div>
+              </div>
+              <div className="p-2 rounded-lg bg-[#06080e] border border-white/10 space-y-0.5">
+                <div className="text-zinc-400 text-[8px] uppercase tracking-wider">Cut Cadence</div>
+                <div className="text-white font-bold text-xs">1 cut / 3.2s</div>
+                <div className="text-emerald-400 text-[8px]">High Retention</div>
+              </div>
+              <div className="p-2 rounded-lg bg-[#06080e] border border-white/10 space-y-0.5">
+                <div className="text-zinc-400 text-[8px] uppercase tracking-wider">GPU Subnet</div>
+                <div className="text-white font-bold text-xs">$0.04 / cut</div>
+                <div className="text-zinc-400 text-[8px]">Livepeer 1.2s</div>
               </div>
             </div>
 
+            {/* High-Retention Semantic Triggers */}
+            <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 pt-0.5">
+              <span className="text-zinc-500 uppercase text-[8px]">Viral Triggers:</span>
+              <div className="flex flex-wrap gap-1">
+                {selectedHook.transcript
+                  .filter((t) => t.isKeyTerm)
+                  .slice(0, 5)
+                  .map((t) => t.word.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase())
+                  .filter((w, i, arr) => w.length > 2 && arr.indexOf(w) === i)
+                  .slice(0, 4)
+                  .map((kw, i) => (
+                    <span
+                      key={i}
+                      className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-300 text-[8px] hover:border-[#84cc16]/50 transition-colors"
+                    >
+                      #{kw}
+                    </span>
+                  ))}
+              </div>
+            </div>
           </div>
 
         </div>
 
         {/* RIGHT 6 COLUMNS: 9:16 SMARTPHONE STAGE & RETENTION GRAPH */}
-        <div className="col-span-6 h-full overflow-y-auto flex flex-col bg-[#05060a] p-4 space-y-3">
+        <div className="col-span-6 h-full overflow-y-auto flex flex-col bg-[#05060a] p-4 gap-3 scrollbar-thin">
           
           {/* Top Half: Smartphone Stage Flanked by Live Retention Curve */}
-          <div className="flex items-center justify-center gap-4 min-h-[340px] bg-black/40 p-3 rounded-xl border border-white/10">
+          <div className="flex items-center justify-center gap-4 bg-black/40 p-3 rounded-xl border border-white/10 shrink-0">
             
             {/* 9:16 Smartphone Shell */}
-            <div className="relative w-[190px] aspect-[9/16] rounded-[26px] bg-black border-[3.5px] border-[#1d2232] shadow-[0_0_50px_rgba(0,0,0,0.9),0_0_25px_rgba(132,204,22,0.15)] overflow-hidden flex flex-col justify-between select-none shrink-0">
+            <div className="relative w-[176px] h-[312px] rounded-[24px] bg-black border-[3.5px] border-[#1d2232] shadow-[0_0_50px_rgba(0,0,0,0.9),0_0_25px_rgba(132,204,22,0.15)] overflow-hidden flex flex-col justify-between select-none shrink-0">
               
               {/* Dynamic Island */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3 rounded-full bg-black flex items-center justify-center gap-1 z-30">
@@ -1067,14 +1085,15 @@ export default function DissectStudioPage() {
               </div>
 
               {/* Multi-Platform Safe Area Overlays (TikTok vs Reels vs Shorts) */}
-              <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-3 pb-6 select-none">
-                {/* Top platform spacing guard */}
-                <div className="pt-4" />
+              <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-3 pb-5 select-none">
+                <div className="pt-3" />
 
                 {/* Bottom & Side Interface simulation */}
                 <div className="flex items-end justify-between">
-                  <div className="space-y-0.5 max-w-[120px]">
-                    <div className="text-[8px] font-heading font-bold text-white">@{selectedHook.sourceSpeaker.toLowerCase().replace(/\s+/g, "")}</div>
+                  <div className="space-y-0.5 max-w-[110px]">
+                    <div className="text-[8px] font-heading font-bold text-white truncate">
+                      @{selectedHook.sourceSpeaker.toLowerCase().replace(/\s+/g, "")}
+                    </div>
                     <div className="text-[7px] text-zinc-300 line-clamp-1">{selectedHook.title}</div>
                     <div
                       onClick={(e) => {
@@ -1086,16 +1105,16 @@ export default function DissectStudioPage() {
                       title={isMuted ? "Audio Muted - Click to Unmute" : "Audio Playing - Click to Mute"}
                     >
                       {isMuted ? (
-                        <VolumeX className="w-2.5 h-2.5 text-rose-400" />
+                        <VolumeX className="w-2 h-2 text-rose-400" />
                       ) : (
-                        <Disc className={`w-2.5 h-2.5 ${isPlaying ? "animate-spin" : ""}`} />
+                        <Disc className={`w-2 h-2 ${isPlaying ? "animate-spin" : ""}`} />
                       )}
-                      <span>{isMuted ? "Audio Muted" : "Original Audio · Livepeer Subnet"}</span>
+                      <span className="truncate">{isMuted ? "Audio Muted" : "Original Audio · Livepeer"}</span>
                     </div>
                   </div>
 
                   {/* Right Action Stack */}
-                  <div className="flex flex-col items-center gap-2 pb-1 text-white text-[8px] font-mono">
+                  <div className="flex flex-col items-center gap-1.5 pb-0.5 text-white text-[7px] font-mono">
                     <div className="flex flex-col items-center">
                       <div className="w-5 h-5 rounded-full bg-black/50 border border-white/20 flex items-center justify-center">
                         <Heart className="w-2.5 h-2.5 text-rose-500 fill-rose-500" />
@@ -1141,16 +1160,18 @@ export default function DissectStudioPage() {
               )}
             </div>
 
-            {/* Flanking Live Viewer Retention Curve Graph */}
-            <div className="flex-1 max-w-[260px] h-[320px] bg-[#07090e] rounded-xl border border-white/10 p-3 flex flex-col justify-between">
+            {/* Flanking Live Viewer Retention Curve Graph (Scalable, Zero-Clipping) */}
+            <div className="flex-1 min-w-[240px] h-[312px] bg-[#07090e] rounded-xl border border-white/10 p-3.5 flex flex-col justify-between">
+              
+              {/* Header with Safe Platform Switcher */}
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-zinc-300">
-                  <BarChart3 className="w-3.5 h-3.5 text-zinc-400" />
+                <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-zinc-200">
+                  <BarChart3 className="w-3.5 h-3.5 text-[#84cc16]" />
                   <span>Retention Curve</span>
                 </div>
                 
-                {/* Safe Platform Mode Switcher - Frosted Glass Pill Dock */}
-                <div className="flex items-center bg-[#0c1220]/80 backdrop-blur-md p-0.5 rounded-full border border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)] text-[8px] font-mono">
+                {/* Safe Platform Mode Switcher */}
+                <div className="flex items-center bg-[#0c1220]/80 backdrop-blur-md p-0.5 rounded-full border border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)] text-[8.5px] font-mono">
                   {(["tiktok", "reels", "shorts"] as const).map((p) => {
                     const isActive = platformSafeMode === p;
                     return (
@@ -1160,9 +1181,9 @@ export default function DissectStudioPage() {
                           cinematicAudio.play("toggle");
                           setPlatformSafeMode(p);
                         }}
-                        className={`px-2.5 py-0.5 rounded-full uppercase transition-all active:scale-95 ${
+                        className={`px-2.5 py-0.5 rounded-full uppercase transition-all active:scale-95 cursor-pointer ${
                           isActive
-                            ? "bg-white/10 text-white font-medium border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                            ? "bg-[#84cc16] text-black font-bold shadow-[0_0_8px_rgba(132,204,22,0.4)]"
                             : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                         }`}
                       >
@@ -1173,88 +1194,95 @@ export default function DissectStudioPage() {
                 </div>
               </div>
 
-              {/* Simulated Viewer Retention Graph */}
-              <div className="flex-1 py-2 flex flex-col justify-between relative">
+              {/* Scalable SVG Viewer Retention Graph */}
+              <div className="flex-1 py-2 flex flex-col justify-between relative min-h-[140px]">
                 <div className="h-full w-full relative flex items-end">
-                  <svg className="w-full h-full overflow-visible">
+                  <svg viewBox="0 0 300 120" preserveAspectRatio="none" className="w-full h-full">
                     <defs>
                       <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#84cc16" stopOpacity="0.3" />
+                        <stop offset="0%" stopColor="#84cc16" stopOpacity="0.4" />
                         <stop offset="100%" stopColor="#84cc16" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
                     <path
-                      d="M 0 10 Q 50 15, 100 25 T 180 40 T 240 55"
-                      fill="none"
-                      stroke="#84cc16"
-                      strokeWidth="2"
+                      d="M 0 15 Q 60 25, 120 45 T 220 70 T 300 90 L 300 120 L 0 120 Z"
+                      fill="url(#retGrad)"
                     />
                     <path
-                      d="M 0 10 Q 50 15, 100 25 T 180 40 T 240 55 L 240 160 L 0 160 Z"
-                      fill="url(#retGrad)"
+                      d="M 0 15 Q 60 25, 120 45 T 220 70 T 300 90"
+                      fill="none"
+                      stroke="#84cc16"
+                      strokeWidth="2.5"
                     />
                   </svg>
 
                   {/* Playhead Marker on Curve */}
                   <div
                     style={{
-                      left: `${Math.min(95, Math.max(5, (currentTime / selectedHook.durationSec) * 100))}%`,
+                      left: `${Math.min(96, Math.max(4, (currentTime / selectedHook.durationSec) * 100))}%`,
                     }}
-                    className="absolute top-0 bottom-0 w-[1.5px] bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                    className="absolute top-0 bottom-0 w-[2px] bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)] z-20"
                   />
+                </div>
+
+                {/* Telemetry Readouts under Curve */}
+                <div className="flex items-center justify-between pt-1 text-[9px] font-mono text-zinc-400">
+                  <span>Peak: <span className="text-[#84cc16] font-bold">98.4%</span></span>
+                  <span>Est. Completion: <span className="text-white font-bold">84.2%</span></span>
+                  <span>Avg Hold: <span className="text-zinc-300 font-bold">12.4s</span></span>
                 </div>
               </div>
 
               {/* J-K-L Transport Controls */}
               <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-white">
+                <span className="text-[11px] font-mono font-bold text-white tracking-wider">
                   {formatTime(currentTime)}
                 </span>
-                <div className="flex items-center gap-1 bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10">
+                <div className="flex items-center gap-1.5 bg-[#0c1220]/80 p-1 rounded-full border border-white/10">
                   <button
                     onClick={() => {
                       cinematicAudio.play("click");
                       handleSeek(0);
                     }}
-                    className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 active:scale-95 transition-all"
+                    className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 active:scale-95 transition-all cursor-pointer"
                     title="Rewind to start"
                   >
-                    <SkipBack className="w-3 h-3" />
+                    <SkipBack className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => {
                       cinematicAudio.play("toggle");
                       setIsPlaying(!isPlaying);
                     }}
-                    className="p-1.5 rounded-full bg-white text-black font-bold hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_2px_8px_rgba(255,255,255,0.2)]"
+                    className="p-1.5 rounded-full bg-[#84cc16] text-black font-bold hover:bg-[#99e62e] active:scale-95 transition-all shadow-[0_0_12px_rgba(132,204,22,0.4)] cursor-pointer"
                     title={isPlaying ? "Pause" : "Play"}
                   >
-                    {isPlaying ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
+                    {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
                   </button>
                   <button
                     onClick={() => {
                       cinematicAudio.play("click");
                       handleSeek(selectedHook.durationSec);
                     }}
-                    className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 active:scale-95 transition-all"
+                    className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 active:scale-95 transition-all cursor-pointer"
                     title="Skip to end"
                   >
-                    <SkipForward className="w-3 h-3" />
+                    <SkipForward className="w-3.5 h-3.5" />
                   </button>
-                  <div className="w-[1px] h-3 bg-white/15 mx-0.5" />
+                  <div className="w-[1px] h-3.5 bg-white/15 mx-0.5" />
                   <button
                     onClick={() => {
                       cinematicAudio.play("toggle");
                       setIsMuted(!isMuted);
                     }}
-                    className={`p-1 rounded-full transition-all active:scale-95 ${
+                    className={`p-1 rounded-full transition-all active:scale-95 cursor-pointer ${
                       isMuted
                         ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
                         : "bg-white/5 text-zinc-300 hover:text-white hover:bg-white/10"
                     }`}
                     title={isMuted ? "Unmute Studio Audio" : "Mute Studio Audio"}
                   >
-                    {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                    {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-[#84cc16]" />}
                   </button>
                 </div>
               </div>
@@ -1263,14 +1291,14 @@ export default function DissectStudioPage() {
 
           </div>
 
-          {/* Bottom Half: AI B-Roll Studio & Subtitle Engine */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Bottom Half: AI B-Roll Studio & Subtitle Engine (Zero-Clipping Spacious Deck) */}
+          <div className="grid grid-cols-2 gap-3 shrink-0">
             
             {/* AI B-Roll Generator with Camera Trajectory & Directorial Lens Controls */}
-            <div className="p-3 rounded-xl bg-[#090c14] border border-white/10 space-y-2">
+            <div className="p-3.5 rounded-xl bg-[#090c14] border border-white/10 space-y-2.5">
               <div className="flex items-center justify-between text-xs font-mono font-semibold text-zinc-200">
                 <div className="flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-zinc-400" />
+                  <Cpu className="w-3.5 h-3.5 text-[#84cc16]" />
                   <span>AI B-Roll Generation</span>
                 </div>
                 
@@ -1278,7 +1306,7 @@ export default function DissectStudioPage() {
                 <select
                   value={cameraTrajectory}
                   onChange={(e) => setCameraTrajectory(e.target.value)}
-                  className="bg-black/60 border border-white/10 text-[8px] font-mono text-zinc-300 rounded px-1.5 py-0.5 focus:outline-none focus:border-white/30"
+                  className="bg-black/60 border border-white/10 text-[9px] font-mono text-zinc-200 rounded px-2 py-0.5 focus:outline-none focus:border-white/30"
                 >
                   <option>Dolly In</option>
                   <option>Pan Left</option>
@@ -1289,9 +1317,9 @@ export default function DissectStudioPage() {
 
               {/* Directorial Lenses & Instant Takes */}
               <div className="flex items-center justify-between pt-0.5">
-                <span className="text-[8px] font-mono text-zinc-400 flex items-center gap-1">
+                <span className="text-[9px] font-mono text-zinc-400 flex items-center gap-1">
                   <Sliders className="w-2.5 h-2.5 text-zinc-500" />
-                  <span>Directorial Lenses:</span>
+                  <span>Directorial Lens:</span>
                 </span>
                 <button
                   type="button"
@@ -1299,10 +1327,10 @@ export default function DissectStudioPage() {
                     cinematicAudio.play("click");
                     handleOptimizeStudioPrompt();
                   }}
-                  className="text-[8px] font-mono text-zinc-400 hover:text-white flex items-center gap-0.5 active:scale-95 transition-all"
+                  className="text-[9px] font-mono text-[#84cc16] hover:text-[#99e62e] flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
                   title="Enrich prompt with 35mm cinematographic optics and lighting parameters"
                 >
-                  <Wand2 className="w-2.5 h-2.5 text-zinc-400" />
+                  <Wand2 className="w-2.5 h-2.5" />
                   <span>Auto-Optimize Optics</span>
                 </button>
               </div>
@@ -1325,10 +1353,10 @@ export default function DissectStudioPage() {
                         cinematicAudio.play("toggle");
                         handleOptimizeStudioPrompt(key);
                       }}
-                      className={`py-1 rounded-full border text-[8px] font-mono transition-all text-center active:scale-95 ${
+                      className={`py-1 rounded-full border text-[8.5px] font-mono transition-all text-center active:scale-95 cursor-pointer ${
                         isSelected
-                          ? "bg-white/10 border-white/25 text-white font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                          : "bg-white/[0.02] border-white/5 text-zinc-400 hover:text-zinc-200"
+                          ? "bg-[#84cc16]/20 border-[#84cc16]/60 text-white font-medium shadow-[0_0_8px_rgba(132,204,22,0.3)]"
+                          : "bg-white/[0.02] border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
                       }`}
                     >
                       {label}
@@ -1337,30 +1365,32 @@ export default function DissectStudioPage() {
                 })}
               </div>
 
+              {/* Spacious, Fully Visible Prompt Textarea */}
               <textarea
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
-                rows={2}
-                className="w-full text-[9px] font-mono bg-black/60 border border-white/10 rounded-lg p-1.5 text-zinc-200 focus:border-white/30 focus:outline-none resize-none leading-relaxed placeholder:text-zinc-500"
+                rows={3}
+                className="w-full text-xs font-mono bg-black/60 border border-white/10 rounded-lg p-2 text-zinc-200 focus:border-[#84cc16]/50 focus:outline-none resize-none leading-relaxed placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)]"
+                placeholder="Enter cinematic B-roll prompt..."
               />
 
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => {
                     cinematicAudio.play("click");
                     handleSynthesizeBroll();
                   }}
                   disabled={isSynthesizing}
-                  className="py-1.5 rounded-full bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-[10px] flex items-center justify-center gap-1 shadow-[0_0_12px_rgba(132,204,22,0.3)] active:scale-95 transition-all disabled:opacity-40"
+                  className="py-2 rounded-full bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(132,204,22,0.35)] active:scale-95 transition-all disabled:opacity-40 cursor-pointer"
                 >
                   {isSynthesizing ? (
                     <>
-                      <RefreshCw className="w-3 h-3 animate-spin text-black" />
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-black" />
                       <span>Rendering ({synthProgress}%)...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3 h-3 text-black" />
+                      <Sparkles className="w-3.5 h-3.5 text-black" />
                       <span>Synthesize Cut</span>
                     </>
                   )}
@@ -1372,61 +1402,92 @@ export default function DissectStudioPage() {
                     handleReimagineTake(selectedDirectorialStyle);
                   }}
                   disabled={isSynthesizing}
-                  className="py-1.5 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-zinc-200 font-heading font-bold text-[10px] flex items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40"
+                  className="py-2 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-zinc-200 font-heading font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
                   title="Generate an instant alternate take with current directorial lens on Livepeer MCP"
                 >
-                  <Wand2 className="w-3 h-3 text-zinc-400" />
+                  <Wand2 className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Re-Imagine Take</span>
                 </button>
               </div>
             </div>
 
-            {/* Subtitle Style Selector */}
-            <div className="p-3 rounded-xl bg-[#090c14] border border-white/10 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-zinc-200">
-                <Type className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Subtitles</span>
+            {/* Subtitle Style & Platform Safe Framing Engine */}
+            <div className="p-3.5 rounded-xl bg-[#090c14] border border-white/10 space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs font-mono font-semibold text-zinc-200 pb-1">
+                  <div className="flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5 text-[#84cc16]" />
+                    <span>Subtitles & Framing</span>
+                  </div>
+                  <span className="text-[9px] font-mono text-emerald-400">Safe Zone OK</span>
+                </div>
+
+                {/* 4 Distinct Subtitle Styles with Clear Visual Distinction */}
+                <div className="grid grid-cols-2 gap-1.5 text-[9px] font-mono pt-1">
+                  {[
+                    { id: "hormozi", label: "Hormozi Gold", badge: "BORDER GOLD" },
+                    { id: "mrbeast", label: "MrBeast Neon", badge: "LIME POP" },
+                    { id: "cyber", label: "Cyber Terminal", badge: "CYAN MONO" },
+                    { id: "minimal", label: "Clean Swiss", badge: "ELEGANT" },
+                  ].map((st) => {
+                    const isSelected = subtitleStyle === st.id;
+                    return (
+                      <button
+                        key={st.id}
+                        onClick={() => {
+                          cinematicAudio.play("toggle");
+                          setSubtitleStyle(st.id as SubtitleStyle);
+                        }}
+                        className={`p-2 rounded-lg border text-left transition-all active:scale-95 cursor-pointer ${
+                          isSelected
+                            ? "bg-[#84cc16]/15 border-[#84cc16]/60 text-white shadow-[0_0_10px_rgba(132,204,22,0.25)]"
+                            : "bg-white/[0.02] border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
+                        }`}
+                      >
+                        <div className="font-bold text-[9.5px] text-white">{st.label}</div>
+                        <div className="text-[7.5px] text-zinc-400 uppercase tracking-wider">{st.badge}</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-1 text-[9px] font-mono">
-                {[
-                  { id: "hormozi", label: "Hormozi Gold" },
-                  { id: "mrbeast", label: "MrBeast Neon" },
-                  { id: "cyber", label: "Cyber Terminal" },
-                  { id: "minimal", label: "Clean Swiss" },
-                ].map((st) => {
-                  const isSelected = subtitleStyle === st.id;
-                  return (
+              {/* Safe Y-Offset Slider with Quick Preset Pills */}
+              <div className="space-y-1.5 pt-1 border-t border-white/10">
+                <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400">
+                  <span>Safe Y-Offset</span>
+                  <span className="text-[#84cc16] font-bold">{subtitleYOffset}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="45"
+                  max="80"
+                  value={subtitleYOffset}
+                  onChange={(e) => setSubtitleYOffset(+e.target.value)}
+                  className="w-full accent-[#84cc16] h-1.5 bg-zinc-800 rounded cursor-pointer"
+                />
+                <div className="flex items-center justify-between pt-0.5">
+                  {[
+                    { val: 55, label: "55% Low" },
+                    { val: 65, label: "65% Mid (Safe)" },
+                    { val: 75, label: "75% High" },
+                  ].map((preset) => (
                     <button
-                      key={st.id}
-                      onClick={() => {
-                        cinematicAudio.play("toggle");
-                        setSubtitleStyle(st.id as SubtitleStyle);
-                      }}
-                      className={`p-1.5 rounded-lg border text-center transition-all active:scale-95 ${
-                        isSelected
-                          ? "bg-white/10 border-white/25 text-white font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                          : "bg-white/[0.02] border-white/5 text-zinc-400 hover:text-zinc-200"
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setSubtitleYOffset(preset.val)}
+                      className={`text-[8px] font-mono px-2 py-0.5 rounded cursor-pointer transition-colors ${
+                        subtitleYOffset === preset.val
+                          ? "bg-[#84cc16]/20 text-[#84cc16] border border-[#84cc16]/40"
+                          : "text-zinc-500 hover:text-zinc-300"
                       }`}
                     >
-                      {st.label}
+                      {preset.label}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
 
-              <div className="pt-1 flex items-center justify-between text-[8px] font-mono text-zinc-400">
-                <span>Safe Y-Offset</span>
-                <span className="text-zinc-200 font-bold">{subtitleYOffset}%</span>
-              </div>
-              <input
-                type="range"
-                min="45"
-                max="80"
-                value={subtitleYOffset}
-                onChange={(e) => setSubtitleYOffset(+e.target.value)}
-                className="w-full accent-white h-1 bg-zinc-800 rounded"
-              />
             </div>
 
           </div>
