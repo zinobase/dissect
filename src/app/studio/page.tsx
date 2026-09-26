@@ -817,13 +817,14 @@ export default function DissectStudioPage() {
     }
   };
 
-  const handleTimelineClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleTimelineClick = async (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
+    const clientX = "touches" in e && e.touches.length > 0 ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clickX = clientX - rect.left;
     const pct = Math.max(0, Math.min(1, clickX / rect.width));
     const seekSec = +(pct * selectedHook.durationSec).toFixed(1);
     
-    if (activeTool === "blade") {
+    if (activeTool === "blade" && !("touches" in e)) {
       try {
         const newCut = await synthesizeBrollLiveOnLivepeer(customPrompt, "Blade Cut", seekSec, 3.0);
         setBrollCuts((prev) => [...prev, newCut]);
@@ -1486,12 +1487,14 @@ export default function DissectStudioPage() {
 
         {/* COLUMN 3: PRO STUDIO INSPECTOR (AI B-ROLL, CAPTIONS, RETENTION) */}
         <div className={`${
+          mobileTab === "directives" ? "flex" : "hidden"
+        } ${
+          layoutMode === "script" ? "lg:hidden" : "lg:flex"
+        } ${
           layoutMode === "studio" 
             ? "col-span-12 lg:col-span-4" 
-            : layoutMode === "script" 
-            ? "hidden" 
             : "col-span-12 lg:col-span-4"
-        } h-full flex flex-col bg-[#07090f] p-3.5 gap-2.5 overflow-hidden select-none transition-all duration-300`}>
+        } h-full flex-col bg-[#07090f] p-3.5 gap-2.5 overflow-hidden select-none transition-all duration-300`}>
           
           {/* Top Inspector Tab Navigation Bar */}
           <div className="flex items-center justify-between pb-1 border-b border-white/10 shrink-0">
@@ -1979,8 +1982,10 @@ export default function DissectStudioPage() {
           {/* Slim Scrub Track */}
           <div
             onClick={handleTimelineClick}
-            className="flex-1 max-w-xl mx-3 h-3 bg-[#080c14] border border-white/10 rounded-full relative overflow-hidden cursor-pointer group"
-            title="Click to seek playhead"
+            onTouchStart={handleTimelineClick}
+            onTouchMove={handleTimelineClick}
+            className="flex-1 max-w-xl mx-3 h-3 bg-[#080c14] border border-white/10 rounded-full relative overflow-hidden cursor-pointer group touch-none"
+            title="Click or drag to seek playhead"
           >
             {/* Cut markers */}
             {brollCuts.map((cut) => {
@@ -2171,7 +2176,9 @@ export default function DissectStudioPage() {
             {/* Main Timeline Workspace (Ruler + Lanes + Playhead) */}
             <div 
               onClick={handleTimelineClick}
-              className={`flex-1 relative flex flex-col justify-between overflow-hidden select-none transition-all ${
+              onTouchStart={handleTimelineClick}
+              onTouchMove={handleTimelineClick}
+              className={`flex-1 relative flex flex-col justify-between overflow-hidden select-none transition-all touch-none ${
                 activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
               }`}
               title={activeTool === "blade" ? "Click to Slice B-Roll Cut at timestamp" : "Click anywhere on timeline to seek playhead"}
