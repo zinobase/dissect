@@ -41,6 +41,7 @@ import {
   Lock,
   ChevronUp,
   ChevronDown,
+  Smartphone,
 } from "lucide-react";
 import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer, createDynamicHookFromKeynote } from "../../lib/broll-synthesizer";
 import { VideoHook, BrollCut, TranscriptWord } from "../../lib/types";
@@ -107,6 +108,7 @@ export default function DissectStudioPage() {
   const [transcriptSearch, setTranscriptSearch] = useState<string>("");
   const [showSafeGuides, setShowSafeGuides] = useState<boolean>(true);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
+  const [mobileTab, setMobileTab] = useState<"stage" | "script" | "directives">("stage");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -387,13 +389,20 @@ export default function DissectStudioPage() {
     if (!ctx) return;
 
     let animId: number;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 280);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 500);
+    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+    let width = canvas.parentElement?.clientWidth || 280;
+    let height = canvas.parentElement?.clientHeight || 500;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    ctx.scale(dpr, dpr);
 
     const handleResize = () => {
       if (!canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
+      width = canvas.parentElement.clientWidth;
+      height = canvas.parentElement.clientHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.scale(dpr, dpr);
     };
     window.addEventListener("resize", handleResize);
 
@@ -694,13 +703,20 @@ export default function DissectStudioPage() {
     if (!ctx) return;
 
     let animId: number;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 800);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 48);
+    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+    let width = canvas.parentElement?.clientWidth || 800;
+    let height = canvas.parentElement?.clientHeight || 48;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    ctx.scale(dpr, dpr);
 
     const handleResize = () => {
       if (!canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
+      width = canvas.parentElement.clientWidth;
+      height = canvas.parentElement.clientHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.scale(dpr, dpr);
     };
     window.addEventListener("resize", handleResize);
 
