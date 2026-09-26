@@ -936,7 +936,7 @@ export default function DissectStudioPage() {
         </div>
 
         {/* Center: Live Keynote Stream Switcher - Floating Frosted Glass Dock */}
-        <div className="flex items-center bg-[#0c1220]/80 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] text-[11px] font-mono">
+        <div className="flex items-center bg-[#0c1220]/80 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] text-[11px] font-mono overflow-x-auto no-scrollbar max-w-[48vw] sm:max-w-none shrink-0">
           {STARTER_KEYNOTES.map((k) => {
             const isActive = selectedHook?.sourceSpeaker === k.speaker;
             return (
@@ -947,7 +947,7 @@ export default function DissectStudioPage() {
                   const target = allHooks.find((h) => h.sourceSpeaker.toLowerCase().includes(k.speaker.split(" ")[0].toLowerCase())) || createDynamicHookFromKeynote(k);
                   handleSelectHook(target);
                 }}
-                className={`px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
+                className={`px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0 ${
                   isActive
                     ? "bg-white/12 text-white font-medium border border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_2px_8px_rgba(0,0,0,0.4)]"
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent"
@@ -967,7 +967,7 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsCustomHookModalOpen(true);
             }}
-            className="px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 text-zinc-300 font-mono text-[10px] font-medium flex items-center gap-1 transition-all ml-1 active:scale-95 cursor-pointer"
+            className="px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 text-zinc-300 font-mono text-[10px] font-medium flex items-center gap-1 transition-all ml-1 active:scale-95 cursor-pointer shrink-0"
             title="Import your own video or paste custom transcript"
           >
             <Plus className="w-3 h-3 text-zinc-400" />
@@ -976,7 +976,7 @@ export default function DissectStudioPage() {
         </div>
 
         {/* Right: Actions, Layout Switcher & Export */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Workspace Layout Mode Switcher */}
           <div className="hidden lg:flex items-center bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10 text-[9px] font-mono">
             {(
@@ -1026,11 +1026,12 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsModelDrawerOpen(true);
             }}
-            className="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-300 flex items-center gap-1.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] active:scale-95 cursor-pointer"
+            className="hidden xs:flex px-2.5 sm:px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-300 items-center gap-1.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] active:scale-95 cursor-pointer shrink-0"
             title="Livepeer Agent Creative MCP Settings"
           >
             <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Livepeer MCP (125 Tools)</span>
+            <span className="hidden md:inline">Livepeer MCP (125 Tools)</span>
+            <span className="md:hidden">MCP</span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
           </button>
 
@@ -1039,25 +1040,77 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsExportOpen(true);
             }}
-            className="px-4 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-black font-heading font-bold text-xs active:scale-95 transition-all shadow-[0_2px_12px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,0.8)] flex items-center gap-1.5 cursor-pointer"
+            className="px-3 sm:px-4 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-black font-heading font-bold text-xs active:scale-95 transition-all shadow-[0_2px_12px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,0.8)] flex items-center gap-1.5 cursor-pointer shrink-0"
           >
             <Download className="w-3.5 h-3.5 text-black" />
-            <span>Export 1080x1920</span>
+            <span className="hidden sm:inline">Export 1080x1920</span>
+            <span className="sm:hidden">Export</span>
           </button>
         </div>
       </header>
+
+      {/* Mobile/Tablet Adaptive View Switcher (Active on < lg screens) */}
+      <div className="lg:hidden flex items-center justify-around bg-[#06080e] border-b border-white/10 px-2 py-1.5 text-[11px] font-mono shrink-0 z-20">
+        <button
+          type="button"
+          onClick={() => {
+            cinematicAudio.play("toggle");
+            setMobileTab("stage");
+          }}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all active:scale-95 cursor-pointer ${
+            mobileTab === "stage"
+              ? "bg-white/15 text-white font-bold border border-white/20 shadow-sm"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Smartphone className="w-3 h-3 text-[#84cc16]" />
+          <span>9:16 Stage</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            cinematicAudio.play("toggle");
+            setMobileTab("script");
+          }}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all active:scale-95 cursor-pointer ${
+            mobileTab === "script"
+              ? "bg-white/15 text-white font-bold border border-white/20 shadow-sm"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <FileText className="w-3 h-3 text-[#84cc16]" />
+          <span>Script</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            cinematicAudio.play("toggle");
+            setMobileTab("directives");
+          }}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all active:scale-95 cursor-pointer ${
+            mobileTab === "directives"
+              ? "bg-white/15 text-white font-bold border border-white/20 shadow-sm"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Sliders className="w-3 h-3 text-[#84cc16]" />
+          <span>Optics & AI</span>
+        </button>
+      </div>
 
       {/* 2. PRO WORKSPACE: RESPONSIVE 3-COLUMN STUDIO / SCRIPT FOCUS / STAGE FOCUS */}
       <div className="flex-1 grid grid-cols-12 min-h-0 overflow-hidden divide-x divide-white/10">
         
         {/* COLUMN 1: WORD-LEVEL SCRIPT & HOOK INGESTION */}
         <div className={`${
+          mobileTab === "script" ? "flex" : "hidden"
+        } lg:flex ${
           layoutMode === "studio" 
             ? "col-span-12 lg:col-span-4" 
             : layoutMode === "script" 
             ? "col-span-12 lg:col-span-7" 
             : "col-span-12 lg:col-span-3"
-        } h-full flex flex-col bg-[#06080e] p-3.5 gap-2.5 overflow-hidden select-none transition-all duration-300`}>
+        } h-full flex-col bg-[#06080e] p-3.5 gap-2.5 overflow-hidden select-none transition-all duration-300`}>
           
           {/* Header Toolbar */}
           <div className="flex items-center justify-between pb-1 border-b border-white/10 shrink-0">
@@ -1224,12 +1277,14 @@ export default function DissectStudioPage() {
 
         {/* COLUMN 2: 9:16 CINEMATIC STAGE & PRECISION TRANSPORT */}
         <div className={`${
+          mobileTab === "stage" ? "flex" : "hidden"
+        } lg:flex ${
           layoutMode === "studio" 
             ? "col-span-12 lg:col-span-4" 
             : layoutMode === "script" 
             ? "col-span-12 lg:col-span-5" 
             : "col-span-12 lg:col-span-5"
-        } h-full flex flex-col items-center justify-between p-3 bg-[#05060a] overflow-hidden select-none transition-all duration-300`}>
+        } h-full flex-col items-center justify-between p-3 bg-[#05060a] overflow-hidden select-none transition-all duration-300`}>
           
           {/* Top Stage Subheader: Mode & Safe Area Guides Controls */}
           <div className="w-full flex items-center justify-between pb-1 border-b border-white/10 shrink-0 text-[9.5px] font-mono">
