@@ -37,8 +37,10 @@ import {
   CheckCircle2,
   Zap,
   Repeat,
+  Eye,
+  Lock,
 } from "lucide-react";
-import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer } from "../../lib/broll-synthesizer";
+import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer, createDynamicHookFromKeynote } from "../../lib/broll-synthesizer";
 import { VideoHook, BrollCut, TranscriptWord } from "../../lib/types";
 import { ModelDrawer, STORAGE_KEY } from "../../components/ModelDrawer";
 import { ExportModal } from "../../components/ExportModal";
@@ -950,6 +952,24 @@ export default function DissectStudioPage() {
         </div>
       </header>
 
+      {/* Studio Camera & Codec Telemetry Bar */}
+      <div className="h-5 bg-[#030407] border-b border-white/[0.06] px-4 flex items-center justify-between text-[8px] font-mono text-zinc-400 select-none shrink-0 z-20">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-zinc-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
+            <span className="font-bold text-white">DISSECT ENGINE 2.4</span>
+          </span>
+          <span className="text-zinc-500 hidden sm:inline">PRORES 422 HQ</span>
+          <span className="text-zinc-500 hidden sm:inline">1080x1920 (9:16 VERTICAL)</span>
+          <span className="text-zinc-500 hidden md:inline">COLOR: REC.709 10-BIT</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-zinc-500 hidden md:inline">AUDIO: 48kHz 24-BIT STEREO</span>
+          <span className="text-zinc-500 hidden sm:inline">LIVEPEER AGENT MCP: ACTIVE</span>
+          <span className="text-[#84cc16] font-bold">LATENCY: 12ms</span>
+        </div>
+      </div>
+
       {/* 2. PRO WORKSPACE: RESPONSIVE 3-COLUMN STUDIO / SCRIPT FOCUS / STAGE FOCUS */}
       <div className="flex-1 grid grid-cols-12 min-h-0 overflow-hidden divide-x divide-white/10">
         
@@ -1255,18 +1275,19 @@ export default function DissectStudioPage() {
             </div>
           </div>
 
-          {/* 9:16 Smartphone Shell: Auto-scaled to fit viewport with zero vertical scroll */}
-          <div className="relative w-[192px] h-[342px] max-h-[58vh] rounded-[24px] bg-black border-[3.5px] border-[#1d2232] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_20px_rgba(132,204,22,0.12)] overflow-hidden flex flex-col justify-between select-none shrink-0 my-auto">
+          {/* 9:16 Smartphone Shell: Sized to authentic vertical resolution */}
+          <div className="relative w-[236px] h-[420px] sm:w-[254px] sm:h-[452px] md:w-[272px] md:h-[484px] max-h-[64vh] rounded-[34px] bg-black border-[4px] border-[#202534] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.95),0_0_35px_rgba(132,204,22,0.08),inset_0_1px_1px_rgba(255,255,255,0.25)] overflow-hidden flex flex-col justify-between select-none shrink-0 my-auto ring-1 ring-white/10">
             
-            {/* Dynamic Island */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3 rounded-full bg-black flex items-center justify-center gap-1 z-30">
-              <div className="w-1.5 h-1.5 rounded-full bg-zinc-900" />
-              <div className="w-1 h-1 rounded-full bg-[#84cc16] animate-pulse" />
+            {/* Dynamic Island Aperture */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 rounded-full bg-black/95 border border-white/10 flex items-center justify-center gap-1.5 z-30 shadow-md">
+              <div className="w-1.5 h-1.5 rounded-full bg-zinc-900 border border-white/10" />
+              <div className="w-1 h-1 rounded-full bg-[#84cc16] animate-pulse shadow-[0_0_6px_rgba(132,204,22,0.8)]" />
+              <span className="text-[6px] font-mono font-bold text-zinc-400">4K REC</span>
             </div>
 
             {/* Dynamic Stage HUD */}
-            <div className="relative z-20 pt-6 px-2.5 flex items-center justify-between text-[7px] font-mono">
-              <span className="px-1.5 py-0.5 rounded-full bg-black/75 border border-white/10 text-[#84cc16] font-bold">
+            <div className="relative z-20 pt-7 px-3 flex items-center justify-between text-[7.5px] font-mono">
+              <span className="px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[#84cc16] font-bold shadow-sm">
                 {activeBroll ? "AI B-ROLL · LIVEPEER" : "HOST A-ROLL"}
               </span>
               <button
@@ -1276,14 +1297,14 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("toggle");
                   setIsMuted(!isMuted);
                 }}
-                className={`px-1.5 py-0.5 rounded-full bg-black/80 border text-[7px] font-mono flex items-center gap-1 cursor-pointer transition-all active:scale-95 pointer-events-auto ${
+                className={`px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md border text-[7.5px] font-mono flex items-center gap-1 cursor-pointer transition-all active:scale-95 pointer-events-auto ${
                   isMuted
                     ? "border-rose-500/40 text-rose-400"
                     : "border-white/15 text-[#84cc16] hover:border-white/30"
                 }`}
                 title={isMuted ? "Audio Muted - Click to Unmute (M)" : "Audio Live - Click to Mute (M)"}
               >
-                {isMuted ? <VolumeX className="w-2 h-2" /> : <Volume2 className="w-2 h-2" />}
+                {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
                 <span>{isMuted ? "MUTED" : "LIVE AUDIO"}</span>
               </button>
             </div>
@@ -1615,6 +1636,30 @@ export default function DissectStudioPage() {
                   placeholder="Enter cinematic B-roll prompt..."
                 />
 
+                {/* Director Quick Lens Chips */}
+                <div className="flex flex-wrap gap-1 pt-0.5">
+                  {[
+                    "Anamorphic 35mm",
+                    "Volumetric Rays",
+                    "Macro Silicon Die",
+                    "Cybernetic HUD",
+                    "8K Octane",
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => {
+                        cinematicAudio.play("click");
+                        setCustomPrompt((prev) => (prev.includes(chip) ? prev : `${prev}, ${chip}`));
+                      }}
+                      className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-white/[0.03] hover:bg-white/10 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white transition-all cursor-pointer active:scale-95"
+                      title={`Append ${chip} to diffusion prompt`}
+                    >
+                      <span>+ {chip}</span>
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => {
@@ -1887,16 +1932,16 @@ export default function DissectStudioPage() {
 
       </div>
 
-      {/* 3. BOTTOM WORKSTATION DOCK: MULTI-TRACK NLE TIMELINE WITH DEDICATED TRANSPORT */}
-      <div className="h-32 bg-[#020305] border-t border-white/10 p-2 flex flex-col justify-between shrink-0 select-none">
+      {/* 3. BOTTOM WORKSTATION DOCK: PRO NLE MULTI-TRACK TIMELINE */}
+      <div className="h-44 sm:h-48 bg-[#04060b] border-t border-white/10 px-3 py-2 flex flex-col justify-between shrink-0 select-none shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
         
         {/* NLE Toolbar Header with Quick Actions & Playhead Controls */}
-        <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 pb-1 border-b border-white/10">
+        <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 pb-1.5 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <div className="flex items-center bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10">
+            <div className="flex items-center bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10 shadow-inner">
               {[
-                { id: "select", icon: MousePointer, label: "V" },
-                { id: "blade", icon: Scissors, label: "C" },
+                { id: "select", icon: MousePointer, label: "V", title: "Selection Pointer (V)" },
+                { id: "blade", icon: Scissors, label: "C", title: "Razor Blade Cut (C)" },
               ].map((t) => {
                 const Icon = t.icon;
                 const isActive = activeTool === t.id;
@@ -1907,14 +1952,15 @@ export default function DissectStudioPage() {
                       cinematicAudio.play("toggle");
                       setActiveTool(t.id as ToolMode);
                     }}
-                    className={`p-1 rounded-full transition-all active:scale-95 cursor-pointer ${
+                    className={`px-2 py-0.5 rounded-full transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
                       isActive
-                        ? "bg-white/15 text-white font-bold border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                        ? "bg-white/20 text-white font-bold border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
                         : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                     }`}
-                    title={t.id === "blade" ? "Blade Cut Tool (C)" : "Selection Tool (V)"}
+                    title={t.title}
                   >
                     <Icon className="w-3 h-3" />
+                    <span className="text-[7.5px]">{t.label}</span>
                   </button>
                 );
               })}
@@ -1932,7 +1978,13 @@ export default function DissectStudioPage() {
               <span>+ Cut at Playhead</span>
             </button>
             
-            <span className="text-zinc-200 font-bold ml-1 text-[9px] font-mono uppercase tracking-wider hidden sm:inline">Timeline Multi-Track</span>
+            <div className="hidden md:flex items-center gap-1.5 text-[8px] font-mono text-zinc-400 bg-white/[0.03] px-2 py-0.5 rounded-full border border-white/5">
+              <span className="text-[#84cc16] font-bold">SNAP: ON</span>
+              <span className="text-zinc-600">·</span>
+              <span>24 FPS NON-DROP</span>
+              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-300">REC.709</span>
+            </div>
           </div>
 
           {/* Timeline Transport Center-Right */}
@@ -1943,8 +1995,8 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("click");
                   handleSeek(0);
                 }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer"
-                title="Rewind (J)"
+                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
+                title="Rewind to Start (J)"
               >
                 <SkipBack className="w-2.5 h-2.5" />
               </button>
@@ -1953,7 +2005,7 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("toggle");
                   setIsPlaying(!isPlaying);
                 }}
-                className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[8px] flex items-center gap-1 active:scale-95 cursor-pointer"
+                className="px-2.5 py-0.5 rounded-full bg-white text-black font-bold text-[8px] flex items-center gap-1 active:scale-95 cursor-pointer shadow-[0_1px_6px_rgba(255,255,255,0.25)]"
                 title="Play/Pause (Space)"
               >
                 {isPlaying ? <Pause className="w-2.5 h-2.5 fill-current" /> : <Play className="w-2.5 h-2.5 fill-current" />}
@@ -1964,38 +2016,119 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("click");
                   handleSeek(selectedHook.durationSec);
                 }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer"
-                title="End (L)"
+                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
+                title="Jump to End (L)"
               >
                 <SkipForward className="w-2.5 h-2.5" />
               </button>
             </div>
-            <span className="text-zinc-400">Duration: {selectedHook.durationSec}s</span>
-            <span>Playhead: <span className="text-[#84cc16] font-bold">{formatTime(currentTime)}</span></span>
+            <div className="hidden sm:flex items-center gap-2 text-[8.5px] font-mono">
+              <span className="text-zinc-400">Total: {selectedHook.durationSec}s</span>
+              <span className="text-zinc-600">|</span>
+              <span>Playhead: <span className="text-[#84cc16] font-bold">{formatTime(currentTime)}</span> <span className="text-zinc-500">({Math.floor((currentTime % 1) * 24)}f)</span></span>
+            </div>
           </div>
         </div>
 
-        {/* Tracks Area */}
-        <div 
-          onClick={handleTimelineClick}
-          className={`flex-1 relative flex flex-col justify-between py-1 overflow-hidden select-none transition-all ${
-            activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
-          }`}
-          title={activeTool === "blade" ? "Click to Slice B-Roll Cut at timestamp" : "Click anywhere on timeline to seek playhead"}
-        >
-          
-          {/* Red Playhead Indicator */}
-          <div
-            style={{
-              left: `${Math.min(98, Math.max(6, 6 + (currentTime / selectedHook.durationSec) * 92))}%`,
-            }}
-            className="absolute top-0 bottom-0 w-[2px] bg-red-500 z-30 pointer-events-none shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-          />
+        {/* Tracks Section: Left Headers + Right Workspace */}
+        <div className="flex-1 flex gap-2 min-h-0 pt-1">
+          {/* Left Track Headers (Pro NLE Style) */}
+          <div className="w-20 sm:w-24 shrink-0 flex flex-col justify-between text-[8px] font-mono text-zinc-400 select-none pb-0.5">
+            <div className="h-4 flex items-center text-[7px] text-zinc-500 font-bold uppercase tracking-wider px-1">
+              TRACKS
+            </div>
 
-          {/* Track V2: Livepeer AI B-Roll */}
-          <div className="flex items-center h-5 gap-2">
-            <span className="w-12 text-[8px] font-mono text-emerald-400 font-bold">V2 B-ROLL</span>
-            <div className="flex-1 h-full bg-black/60 rounded border border-white/5 relative overflow-hidden flex items-center">
+            {/* V2 Header */}
+            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+              <span className="text-[#84cc16] font-bold">V2 B-ROLL</span>
+              <Eye className="w-2.5 h-2.5 text-zinc-500" />
+            </div>
+
+            {/* V1 Header */}
+            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+              <span className="text-zinc-300 font-bold">V1 HOST</span>
+              <Lock className="w-2.5 h-2.5 text-zinc-500" />
+            </div>
+
+            {/* A1 Header */}
+            <div className="h-6 flex items-center justify-between px-1.5 rounded bg-black/40 border border-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  cinematicAudio.play("toggle");
+                  setIsMuted(!isMuted);
+                }}
+                className={`flex items-center gap-1 font-bold cursor-pointer transition-all hover:brightness-125 ${
+                  isMuted ? "text-rose-400" : "text-[#84cc16]"
+                }`}
+                title={isMuted ? "Unmute Audio" : "Mute Audio"}
+              >
+                {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
+                <span>A1 AUD</span>
+              </button>
+              <span className="text-[7px] text-zinc-500">0dB</span>
+            </div>
+          </div>
+
+          {/* Main Timeline Workspace (Ruler + Lanes + Playhead) */}
+          <div 
+            onClick={handleTimelineClick}
+            className={`flex-1 relative flex flex-col justify-between overflow-hidden select-none transition-all ${
+              activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
+            }`}
+            title={activeTool === "blade" ? "Click to Slice B-Roll Cut at timestamp" : "Click anywhere on timeline to seek playhead"}
+          >
+            {/* Red Laser Playhead Indicator spanning Ruler & Tracks */}
+            <div
+              style={{
+                left: `${Math.min(99.5, Math.max(0.5, (currentTime / selectedHook.durationSec) * 100))}%`,
+              }}
+              className="absolute top-0 bottom-0 z-30 pointer-events-none -translate-x-1/2 flex flex-col items-center"
+            >
+              <div className="w-2.5 h-2.5 bg-red-500 rotate-45 border border-white/80 shadow-[0_0_10px_rgba(239,68,68,1)] shrink-0 -mt-0.5" />
+              <div className="w-[1.5px] flex-1 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
+            </div>
+
+            {/* SMPTE Timecode Ruler with Subdivision Ticks */}
+            <div className="h-4 bg-[#080c14] rounded-t border border-white/10 relative overflow-hidden flex items-end">
+              {Array.from({ length: Math.ceil(selectedHook.durationSec) + 1 }).map((_, sec) => {
+                if (sec > selectedHook.durationSec) return null;
+                const leftPct = (sec / selectedHook.durationSec) * 100;
+                return (
+                  <React.Fragment key={sec}>
+                    {/* Major tick & label */}
+                    <div
+                      style={{ left: `${leftPct}%` }}
+                      className="absolute bottom-0 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                    >
+                      <span className="text-[6.5px] font-mono text-zinc-400 leading-none mb-0.5 select-none font-semibold">
+                        {sec}s
+                      </span>
+                      <div className="w-[1px] h-2 bg-white/40" />
+                    </div>
+
+                    {/* Minor ticks (quarter seconds) */}
+                    {[0.25, 0.5, 0.75].map((sub) => {
+                      const subSec = sec + sub;
+                      if (subSec >= selectedHook.durationSec) return null;
+                      const subPct = (subSec / selectedHook.durationSec) * 100;
+                      return (
+                        <div
+                          key={sub}
+                          style={{ left: `${subPct}%` }}
+                          className="absolute bottom-0 -translate-x-1/2 pointer-events-none"
+                        >
+                          <div className={`w-[1px] ${sub === 0.5 ? "h-1.5 bg-white/25" : "h-1 bg-white/15"}`} />
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            {/* Track V2: Livepeer AI B-Roll */}
+            <div className="h-6 bg-black/60 rounded border border-white/5 relative overflow-hidden flex items-center">
               {brollCuts.map((cut) => {
                 const leftPct = (cut.startSec / selectedHook.durationSec) * 100;
                 const widthPct = (cut.durationSec / selectedHook.durationSec) * 100;
@@ -2005,19 +2138,19 @@ export default function DissectStudioPage() {
                     onClick={() => handleSeek(cut.startSec)}
                     onDoubleClick={() => setRefiningCut(cut)}
                     style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                    className="absolute h-full bg-emerald-500/20 border border-emerald-400/60 rounded px-1.5 flex items-center justify-between text-[7px] font-mono text-emerald-300 cursor-pointer hover:brightness-125 truncate group"
+                    className="absolute h-full bg-[#84cc16]/15 hover:bg-[#84cc16]/25 border border-[#84cc16]/60 rounded px-1.5 flex items-center justify-between text-[7px] font-mono text-[#84cc16] cursor-pointer hover:brightness-125 truncate group transition-colors shadow-[0_0_8px_rgba(132,204,22,0.15)]"
                     title="Click to seek · Double-click to open Slice Surgery"
                   >
                     <span className="truncate font-bold">{cut.triggerPhrase}</span>
                     <div className="flex items-center gap-1 shrink-0">
-                      <span>{cut.durationSec}s</span>
+                      <span className="text-[6.5px] opacity-80">{cut.durationSec}s</span>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setRefiningCut(cut);
                         }}
-                        className="hidden group-hover:inline px-1 rounded bg-black/80 text-white hover:text-emerald-400 border border-white/20 text-[6px]"
+                        className="hidden group-hover:inline px-1 py-0.5 rounded bg-black/80 text-white hover:text-[#84cc16] border border-white/20 text-[6px] cursor-pointer"
                         title="Refine Slice Prompt on Livepeer MCP"
                       >
                         Refine
@@ -2027,37 +2160,22 @@ export default function DissectStudioPage() {
                 );
               })}
             </div>
-          </div>
 
-          {/* Track V1: Host A-Roll */}
-          <div className="flex items-center h-5 gap-2">
-            <span className="w-12 text-[8px] font-mono text-zinc-400 font-bold">V1 HOST</span>
-            <div className="flex-1 h-full bg-[#0e131d] rounded border border-white/10 relative overflow-hidden flex items-center px-2 text-[7px] font-mono text-zinc-300">
-              <span className="font-bold">{selectedHook.sourceSpeaker} (9:16 Face Tracked)</span>
+            {/* Track V1: Host A-Roll */}
+            <div className="h-6 bg-[#0c121e] rounded border border-white/10 relative overflow-hidden flex items-center px-2 text-[7px] font-mono text-zinc-300">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="font-bold text-white">{selectedHook.sourceSpeaker}</span>
+                <span className="text-zinc-500">· 9:16 Face Tracked Primary Cut · 1080x1920 60FPS</span>
+              </div>
             </div>
-          </div>
 
-          {/* Track A1: Audio Waveform Canvas */}
-          <div className="flex items-center h-6 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                cinematicAudio.play("toggle");
-                setIsMuted(!isMuted);
-              }}
-              className={`w-12 text-[8px] font-mono font-bold flex items-center gap-1 hover:brightness-125 transition-all text-left cursor-pointer ${
-                isMuted ? "text-rose-400" : "text-amber-400"
-              }`}
-              title={isMuted ? "Track Muted - Click to Unmute" : "Track Live - Click to Mute"}
-            >
-              {isMuted ? <VolumeX className="w-2.5 h-2.5" /> : <Volume2 className="w-2.5 h-2.5" />}
-              <span>A1 AUDIO</span>
-            </button>
-            <div className="flex-1 h-full rounded border border-white/5 overflow-hidden">
+            {/* Track A1: Audio Waveform Canvas */}
+            <div className="h-6 rounded border border-white/10 overflow-hidden bg-black/80 relative">
               <canvas ref={timelineCanvasRef} className="w-full h-full block" />
             </div>
-          </div>
 
+          </div>
         </div>
 
       </div>
