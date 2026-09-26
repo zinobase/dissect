@@ -86,6 +86,7 @@ export default function DissectStudioPage() {
   const [cameraTrajectory, setCameraTrajectory] = useState<string>("Dolly In");
   const [isSynthesizing, setIsSynthesizing] = useState<boolean>(false);
   const [synthProgress, setSynthProgress] = useState<number>(0);
+  const [opticsFeedback, setOpticsFeedback] = useState<string>("");
 
   // AI Model Drawer & Generation Settings
   const [isModelDrawerOpen, setIsModelDrawerOpen] = useState<boolean>(false);
@@ -207,6 +208,12 @@ export default function DissectStudioPage() {
 
   const currentTimeRef = useRef(currentTime);
   currentTimeRef.current = currentTime;
+
+  const cameraTrajectoryRef = useRef(cameraTrajectory);
+  cameraTrajectoryRef.current = cameraTrajectory;
+
+  const selectedDirectorialStyleRef = useRef(selectedDirectorialStyle);
+  selectedDirectorialStyleRef.current = selectedDirectorialStyle;
 
   // Active spoken word
   const activeWordIndex = selectedHook.transcript.findIndex(
@@ -446,6 +453,42 @@ export default function DissectStudioPage() {
 
       const curBroll = activeBrollRef.current;
       const curHook = selectedHookRef.current;
+      const traj = cameraTrajectoryRef.current;
+      const style = selectedDirectorialStyleRef.current;
+
+      // Physical camera trajectory simulation
+      let panX = 0;
+      let panY = 0;
+      let zoom = 1.02;
+
+      if (traj === "Crane Up") {
+        panY = -14 + Math.sin(frame * 0.02) * 8;
+        panX = Math.sin(frame * 0.01) * 3;
+        zoom = 1.05 + Math.sin(frame * 0.015) * 0.02;
+      } else if (traj === "Pan Left") {
+        panX = -18 + Math.sin(frame * 0.02) * 12;
+        panY = Math.cos(frame * 0.012) * 3;
+        zoom = 1.04;
+      } else if (traj === "Orbit 360") {
+        panX = Math.sin(frame * 0.025) * 14;
+        panY = Math.cos(frame * 0.025) * 8;
+        zoom = 1.06 + Math.sin(frame * 0.02) * 0.03;
+      } else {
+        // Dolly In (Default)
+        zoom = 1.02 + (frame % 360) * 0.0007;
+        panX = Math.sin(frame * 0.012) * 4;
+        panY = Math.cos(frame * 0.01) * 3;
+      }
+
+      // Directorial Lens Style Overrides
+      if (style === "macro_texture") {
+        zoom *= 1.34;
+      } else if (style === "dynamic_drone") {
+        zoom *= 0.94;
+        panY -= 6;
+      } else if (style === "studio_push") {
+        zoom *= 1.1 + Math.sin(frame * 0.035) * 0.04;
+      }
 
       if (curBroll) {
         // SCENE A: LIVEPEER SYNTHETIC B-ROLL
@@ -454,10 +497,6 @@ export default function DissectStudioPage() {
         const brollImg = getImage(brollSrc);
 
         if (brollImg && brollImg.complete && brollImg.naturalWidth > 0) {
-          const zoom = 1.02 + (frame % 300) * 0.0006;
-          const panX = Math.sin(frame * 0.012) * 6;
-          const panY = Math.cos(frame * 0.01) * 4;
-
           const imgAspect = brollImg.naturalWidth / brollImg.naturalHeight;
           const canvasAspect = width / height;
           let drawW = width, drawH = height;
@@ -521,10 +560,6 @@ export default function DissectStudioPage() {
         const targetSpeakerImg = getImage(hostSrc);
 
         if (targetSpeakerImg && targetSpeakerImg.complete && targetSpeakerImg.naturalWidth > 0) {
-          const zoom = 1.01 + (frame % 250) * 0.0003;
-          const panX = Math.sin(frame * 0.015) * 3;
-          const panY = Math.cos(frame * 0.018) * 2;
-
           const imgAspect = targetSpeakerImg.naturalWidth / targetSpeakerImg.naturalHeight;
           const canvasAspect = width / height;
           let drawW = width, drawH = height;
@@ -598,6 +633,42 @@ export default function DissectStudioPage() {
         }
         ctx.restore();
       }
+
+      // Live Camera Optics & Trajectory Telemetry Tag on Canvas
+      ctx.save();
+      ctx.fillStyle = "rgba(4, 6, 12, 0.85)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1;
+      const styleName = style === "cinematic_prime" ? "35MM" : style === "macro_texture" ? "MACRO" : style === "dynamic_drone" ? "DRONE" : "PUSH-IN";
+      const hudText = `CAM: ${traj.toUpperCase()} · ${styleName}`;
+      ctx.font = "bold 6.5px monospace";
+      const textWidth = ctx.measureText(hudText).width;
+      ctx.fillRect(width - textWidth - 18, 10, textWidth + 12, 15);
+      ctx.strokeRect(width - textWidth - 18, 10, textWidth + 12, 15);
+      ctx.fillStyle = "#84cc16";
+      ctx.fillText(hudText, width - textWidth - 12, 20.5);
+
+      // Optical reticle overlays according to selected lens
+      if (style === "macro_texture") {
+        ctx.strokeStyle = "rgba(132, 204, 22, 0.35)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - 24, cy - 24, 48, 48);
+        ctx.fillStyle = "rgba(132, 204, 22, 0.7)";
+        ctx.font = "6px monospace";
+        ctx.fillText("1:1 MACRO F/2.8", cx - 21, cy + 33);
+      } else if (style === "dynamic_drone") {
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(15, cy);
+        ctx.lineTo(45, cy);
+        ctx.moveTo(width - 45, cy);
+        ctx.lineTo(width - 15, cy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.restore();
 
       // 35mm Subtle Film Grain
       ctx.fillStyle = "rgba(255, 255, 255, 0.025)";
@@ -769,10 +840,14 @@ export default function DissectStudioPage() {
     }
   };
 
-  const handleOptimizeStudioPrompt = (style: DirectorialStyle = selectedDirectorialStyle) => {
+  const handleOptimizeStudioPrompt = (style: DirectorialStyle = selectedDirectorialStyle, traj: string = cameraTrajectory) => {
     const result = optimizeCinematicPrompt(customPrompt, style, "9:16");
-    setCustomPrompt(result.optimizedPrompt);
+    const formatted = `${result.optimizedPrompt}, ${traj} trajectory`;
+    setCustomPrompt(formatted);
     setSelectedDirectorialStyle(style);
+    const styleLabel = style === "cinematic_prime" ? "35mm Prime" : style === "macro_texture" ? "Macro" : style === "dynamic_drone" ? "Drone" : "Push-In";
+    setOpticsFeedback(`Optics Calibrated: ${styleLabel} · ${traj}`);
+    setTimeout(() => setOpticsFeedback(""), 2800);
   };
 
   const handleUpdateBrollCut = (
@@ -798,7 +873,8 @@ export default function DissectStudioPage() {
   const handleReimagineTake = async (style: DirectorialStyle) => {
     setSelectedDirectorialStyle(style);
     const result = optimizeCinematicPrompt(customPrompt, style, "9:16");
-    setCustomPrompt(result.optimizedPrompt);
+    const formatted = `${result.optimizedPrompt}, ${cameraTrajectory} trajectory`;
+    setCustomPrompt(formatted);
 
     if (isSynthesizing) return;
     setIsSynthesizing(true);
@@ -1396,8 +1472,13 @@ export default function DissectStudioPage() {
                   
                   <select
                     value={cameraTrajectory}
-                    onChange={(e) => setCameraTrajectory(e.target.value)}
-                    className="bg-black/60 border border-white/10 text-[9px] font-mono text-zinc-200 rounded px-2 py-0.5 focus:outline-none focus:border-[#84cc16]/50"
+                    onChange={(e) => {
+                      const newTraj = e.target.value;
+                      cinematicAudio.play("toggle");
+                      setCameraTrajectory(newTraj);
+                      handleOptimizeStudioPrompt(selectedDirectorialStyle, newTraj);
+                    }}
+                    className="bg-black/60 border border-white/10 text-[9px] font-mono text-zinc-200 rounded px-2 py-0.5 focus:outline-none focus:border-[#84cc16]/50 cursor-pointer"
                   >
                     <option>Dolly In</option>
                     <option>Pan Left</option>
@@ -1422,7 +1503,7 @@ export default function DissectStudioPage() {
                         type="button"
                         onClick={() => {
                           cinematicAudio.play("toggle");
-                          handleOptimizeStudioPrompt(key);
+                          handleOptimizeStudioPrompt(key, cameraTrajectory);
                         }}
                         className={`py-1 rounded-full border text-[8.5px] font-mono transition-all text-center active:scale-95 cursor-pointer flex items-center justify-center gap-1 ${
                           isSelected
@@ -1437,14 +1518,24 @@ export default function DissectStudioPage() {
                   })}
                 </div>
 
-                <div className="flex justify-end pt-0.5">
+                <div className="flex items-center justify-between pt-0.5 min-h-[18px]">
+                  {opticsFeedback ? (
+                    <div className="text-[8px] font-mono text-[#84cc16] flex items-center gap-1 animate-fadeIn font-semibold">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      <span>{opticsFeedback}</span>
+                    </div>
+                  ) : (
+                    <span className="text-[7.5px] font-mono text-zinc-500">
+                      Physical Camera: {cameraTrajectory} · 24fps
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
                       cinematicAudio.play("click");
-                      handleOptimizeStudioPrompt();
+                      handleOptimizeStudioPrompt(selectedDirectorialStyle, cameraTrajectory);
                     }}
-                    className="text-[9px] font-mono text-[#84cc16] hover:text-[#99e62e] flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+                    className="text-[9px] font-mono text-[#84cc16] hover:text-[#99e62e] flex items-center gap-1 active:scale-95 transition-all cursor-pointer font-bold"
                     title="Enrich prompt with 35mm cinematographic optics and lighting parameters"
                   >
                     <Wand2 className="w-2.5 h-2.5" />
