@@ -36,6 +36,7 @@ import {
   Keyboard,
   CheckCircle2,
   Zap,
+  Repeat,
 } from "lucide-react";
 import { STARTER_KEYNOTES, SAMPLE_LONGFORM_HOOKS, getBrollForHook, synthesizeBrollLiveOnLivepeer, dissectVideoWithLivepeer } from "../../lib/broll-synthesizer";
 import { VideoHook, BrollCut, TranscriptWord } from "../../lib/types";
@@ -58,6 +59,7 @@ export default function DissectStudioPage() {
   const [brollCuts, setBrollCuts] = useState<BrollCut[]>(() => getBrollForHook(SAMPLE_LONGFORM_HOOKS[0].id, SAMPLE_LONGFORM_HOOKS[0]));
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isLooping, setIsLooping] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [activeTool, setActiveTool] = useState<ToolMode>("select");
 
@@ -110,8 +112,6 @@ export default function DissectStudioPage() {
       if (urlParam) {
         setDirectInputText(urlParam);
         handleDirectIngest(undefined, urlParam);
-      } else {
-        handleDirectIngest(undefined, STARTER_KEYNOTES[0].topicText, STARTER_KEYNOTES[0].speaker);
       }
     }
   }, []);
@@ -193,6 +193,12 @@ export default function DissectStudioPage() {
   const activeBroll = brollCuts.find(
     (b) => currentTime >= b.startSec && currentTime <= b.endSec
   );
+
+  const selectedHookRef = useRef(selectedHook);
+  selectedHookRef.current = selectedHook;
+
+  const activeBrollRef = useRef(activeBroll);
+  activeBrollRef.current = activeBroll;
 
   // Active spoken word
   const activeWordIndex = selectedHook.transcript.findIndex(
@@ -327,8 +333,14 @@ export default function DissectStudioPage() {
       if (audio && !audio.paused && !isNaN(audio.duration) && audio.duration > 0) {
         const audioTime = audio.currentTime;
         if (audioTime >= selectedHook.durationSec) {
-          audio.currentTime = 0;
-          setCurrentTime(0);
+          if (isLooping) {
+            audio.currentTime = 0;
+            setCurrentTime(0);
+          } else {
+            audio.pause();
+            setIsPlaying(false);
+            setCurrentTime(selectedHook.durationSec);
+          }
         } else {
           setCurrentTime(+audioTime.toFixed(2));
         }
@@ -336,15 +348,21 @@ export default function DissectStudioPage() {
         setCurrentTime((prev) => {
           const next = prev + 0.1;
           if (next >= selectedHook.durationSec) {
-            if (audio) audio.currentTime = 0;
-            return 0;
+            if (isLooping) {
+              if (audio) audio.currentTime = 0;
+              return 0;
+            } else {
+              if (audio) audio.pause();
+              setIsPlaying(false);
+              return selectedHook.durationSec;
+            }
           }
           return +next.toFixed(2);
         });
       }
     }, 50);
     return () => clearInterval(interval);
-  }, [isPlaying, selectedHook.durationSec]);
+  }, [isPlaying, selectedHook.durationSec, isLooping]);
 
   // 60 FPS HTML5 Canvas Video Renderer (9:16 Vertical Video Engine)
   useEffect(() => {
@@ -366,43 +384,46 @@ export default function DissectStudioPage() {
 
     let frame = 0;
 
-    const speakerImg = new Image();
-    speakerImg.crossOrigin = "anonymous";
-    speakerImg.src = "/api/proxy-media?url=" + encodeURIComponent("https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MDEvekFjeWZCNVR6OUJHTGJJaDZ2TGZQLmpwZw.e73f200b252ea79b/zAcyfB5Tz9BGLbIh6vLfP.jpg");
-    const siliconImg = new Image();
-    siliconImg.crossOrigin = "anonymous";
-    siliconImg.src = "/api/proxy-media?url=" + encodeURIComponent("https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg");
-    const tokyoImg = new Image();
-    tokyoImg.crossOrigin = "anonymous";
-    tokyoImg.src = "/api/proxy-media?url=" + encodeURIComponent("https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MTYvejRDTFU0THkyRjFoWml5TklJcWEyLmpwZw.660ffbf5b22ed418/z4CLU4Ly2F1hZiyNIIqa2.jpg");
+    // Fast image cache preloaded with local 9:16 vertical assets
+    const imageCache = new Map<string, HTMLImageElement>();
+    const preloadList = [
+      "/images/speakers/jensen.jpg",
+      "/images/speakers/ilya.jpg",
+      "/images/speakers/karpathy.jpg",
+      "/images/speakers/sam.jpg",
+      "/images/broll/robotics.jpg",
+      "/images/broll/neural.jpg",
+      "/images/broll/sensor.jpg",
+      "/images/broll/reasoning.jpg",
+    ];
 
-    [speakerImg, siliconImg, tokyoImg].forEach((img) => {
+    preloadList.forEach((src) => {
+      const img = new Image();
+      img.src = src;
       if ("decode" in img && typeof img.decode === "function") {
         img.decode().catch(() => {});
       }
+      imageCache.set(src, img);
     });
 
-    const imageCache = new Map<string, HTMLImageElement>();
-    imageCache.set("speaker", speakerImg);
-    imageCache.set("silicon", siliconImg);
-    imageCache.set("tokyo", tokyoImg);
-
-    const getImage = (src: string) => {
-      if (!src) return speakerImg;
-      const proxySrc = src.startsWith("http") && !src.includes("/api/proxy-media")
-        ? `/api/proxy-media?url=${encodeURIComponent(src)}`
-        : src;
-      if (imageCache.has(proxySrc)) return imageCache.get(proxySrc)!;
+    const getImage = (src: string): HTMLImageElement => {
+      if (!src) return imageCache.get("/images/speakers/jensen.jpg") || new Image();
+      const resolvedSrc =
+        src.startsWith("http") && !src.includes("/api/proxy-media")
+          ? `/api/proxy-media?url=${encodeURIComponent(src)}`
+          : src;
+      if (imageCache.has(resolvedSrc)) {
+        return imageCache.get(resolvedSrc)!;
+      }
       const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onerror = () => {
-        img.src = siliconImg.src;
-      };
-      img.src = proxySrc;
+      if (resolvedSrc.startsWith("http")) {
+        img.crossOrigin = "anonymous";
+      }
+      img.src = resolvedSrc;
       if ("decode" in img && typeof img.decode === "function") {
         img.decode().catch(() => {});
       }
-      imageCache.set(proxySrc, img);
+      imageCache.set(resolvedSrc, img);
       return img;
     };
 
@@ -415,16 +436,16 @@ export default function DissectStudioPage() {
       ctx.fillStyle = "#06070b";
       ctx.fillRect(0, 0, width, height);
 
-      if (activeBroll) {
+      const curBroll = activeBrollRef.current;
+      const curHook = selectedHookRef.current;
+
+      if (curBroll) {
         // SCENE A: LIVEPEER SYNTHETIC B-ROLL
         ctx.save();
-        const brollSrc = activeBroll.posterUrl || activeBroll.videoUrl;
-        let brollImg = brollSrc ? getImage(brollSrc) : siliconImg;
-        if (!brollImg.complete || brollImg.naturalWidth === 0) {
-          brollImg = siliconImg;
-        }
+        const brollSrc = curBroll.posterUrl || curBroll.videoUrl || "/images/broll/robotics.jpg";
+        const brollImg = getImage(brollSrc);
 
-        if (brollImg.complete && brollImg.naturalWidth > 0) {
+        if (brollImg && brollImg.complete && brollImg.naturalWidth > 0) {
           const zoom = 1.02 + (frame % 300) * 0.0006;
           const panX = Math.sin(frame * 0.012) * 6;
           const panY = Math.cos(frame * 0.01) * 4;
@@ -477,21 +498,21 @@ export default function DissectStudioPage() {
           ctx.fillText("LIVEPEER B-ROLL", 20, 26);
           ctx.fillStyle = "#a1a1aa";
           ctx.font = "8px monospace";
-          const triggerTrimmed = activeBroll.triggerPhrase.length > 15 ? activeBroll.triggerPhrase.slice(0, 13) + ".." : activeBroll.triggerPhrase;
+          const triggerTrimmed = curBroll.triggerPhrase.length > 15 ? curBroll.triggerPhrase.slice(0, 13) + ".." : curBroll.triggerPhrase;
           ctx.fillText(`· ${triggerTrimmed}`, 115, 26);
           ctx.restore();
+        } else {
+          ctx.fillStyle = "#0c1018";
+          ctx.fillRect(0, 0, width, height);
         }
         ctx.restore();
       } else {
         // SCENE B: PODCAST SPEAKER WITH REALISTIC CAM AND FACE-TRACKING
         ctx.save();
-        const hostSrc = selectedHook.speakerVideoUrl;
-        let targetSpeakerImg = hostSrc ? getImage(hostSrc) : speakerImg;
-        if (!targetSpeakerImg.complete || targetSpeakerImg.naturalWidth === 0) {
-          targetSpeakerImg = speakerImg;
-        }
+        const hostSrc = curHook.speakerVideoUrl || "/images/speakers/jensen.jpg";
+        const targetSpeakerImg = getImage(hostSrc);
 
-        if (targetSpeakerImg.complete && targetSpeakerImg.naturalWidth > 0) {
+        if (targetSpeakerImg && targetSpeakerImg.complete && targetSpeakerImg.naturalWidth > 0) {
           const zoom = 1.01 + (frame % 250) * 0.0003;
           const panX = Math.sin(frame * 0.015) * 3;
           const panY = Math.cos(frame * 0.018) * 2;
@@ -584,7 +605,7 @@ export default function DissectStudioPage() {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", handleResize);
     };
-  }, [activeBroll, customPrompt]);
+  }, []);
 
   // 60 FPS HTML5 Audio Waveform Timeline Canvas
   useEffect(() => {
@@ -1418,6 +1439,23 @@ export default function DissectStudioPage() {
               >
                 {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
               </button>
+              <div className="w-[1px] h-3 bg-white/15 mx-0.5" />
+              <button
+                type="button"
+                onClick={() => {
+                  cinematicAudio.play("toggle");
+                  setIsLooping(!isLooping);
+                }}
+                className={`px-2 py-0.5 rounded-full text-[8.5px] font-mono flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
+                  isLooping
+                    ? "bg-[#84cc16]/20 text-[#84cc16] border border-[#84cc16]/40 shadow-[0_0_8px_rgba(132,204,22,0.2)]"
+                    : "text-zinc-500 hover:text-zinc-300 border border-transparent"
+                }`}
+                title={isLooping ? "Loop Playback (Enabled)" : "Play Once (Loop Disabled)"}
+              >
+                <Repeat className="w-2.5 h-2.5" />
+                <span>{isLooping ? "Loop" : "Once"}</span>
+              </button>
             </div>
 
             <button
@@ -2094,8 +2132,13 @@ export default function DissectStudioPage() {
         src={selectedHook.audioUrl || `/api/tts?text=${encodeURIComponent(selectedHook.quoteText || selectedHook.title)}`}
         preload="auto"
         playsInline
-        loop
+        loop={isLooping}
         muted={isMuted}
+        onEnded={() => {
+          if (!isLooping) {
+            setIsPlaying(false);
+          }
+        }}
         onLoadedMetadata={(e) => {
           const d = e.currentTarget.duration;
           if (d && !isNaN(d) && isFinite(d) && d > 2) {

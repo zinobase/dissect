@@ -190,7 +190,17 @@ export async function POST(req: NextRequest) {
     let monologueText = "";
     let resolvedTitle = "";
     let resolvedSpeaker = customSpeaker;
-    let speakerVideoUrl = "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg";
+    let speakerVideoUrl = "/images/speakers/jensen.jpg";
+    const speakerLower = (customSpeaker || rawInput).toLowerCase();
+    if (speakerLower.includes("jensen") || speakerLower.includes("huang") || speakerLower.includes("nvidia")) {
+      speakerVideoUrl = "/images/speakers/jensen.jpg";
+    } else if (speakerLower.includes("ilya") || speakerLower.includes("sutskever") || speakerLower.includes("ssi") || speakerLower.includes("scaling")) {
+      speakerVideoUrl = "/images/speakers/ilya.jpg";
+    } else if (speakerLower.includes("karpathy") || speakerLower.includes("andrej") || speakerLower.includes("tesla") || speakerLower.includes("vision")) {
+      speakerVideoUrl = "/images/speakers/karpathy.jpg";
+    } else if (speakerLower.includes("altman") || speakerLower.includes("sam") || speakerLower.includes("openai") || speakerLower.includes("reasoning")) {
+      speakerVideoUrl = "/images/speakers/sam.jpg";
+    }
 
     const isUrl = rawInput.startsWith("http://") || rawInput.startsWith("https://") || rawInput.includes("youtube.com") || rawInput.includes("youtu.be");
 
@@ -363,9 +373,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const toProxiedUrl = (url: string | null | undefined): string => {
-      const fallbackUrl = "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg";
-      const target = url || fallbackUrl;
+    const toProxiedUrl = (url: string | null | undefined, defaultLocal: string = "/images/broll/robotics.jpg"): string => {
+      const target = url || defaultLocal;
       if (target.startsWith("http://") || target.startsWith("https://")) {
         if (!target.includes("/api/proxy-media")) {
           return `/api/proxy-media?url=${encodeURIComponent(target)}`;
@@ -374,10 +383,23 @@ export async function POST(req: NextRequest) {
       return target;
     };
 
-    const rawBroll1 = livepeerBrollUrl1 || briefCategory.defaultPoster1;
-    const rawBroll2 = livepeerBrollUrl2 || briefCategory.defaultPoster2;
-    const broll1Url = toProxiedUrl(rawBroll1);
-    const broll2Url = toProxiedUrl(rawBroll2);
+    let defaultB1 = "/images/broll/robotics.jpg";
+    let defaultB2 = "/images/broll/sensor.jpg";
+    if (speakerLower.includes("karpathy") || speakerLower.includes("andrej")) {
+      defaultB1 = "/images/broll/sensor.jpg";
+      defaultB2 = "/images/broll/robotics.jpg";
+    } else if (speakerLower.includes("ilya") || speakerLower.includes("sutskever")) {
+      defaultB1 = "/images/broll/neural.jpg";
+      defaultB2 = "/images/broll/reasoning.jpg";
+    } else if (speakerLower.includes("altman") || speakerLower.includes("sam")) {
+      defaultB1 = "/images/broll/reasoning.jpg";
+      defaultB2 = "/images/broll/neural.jpg";
+    }
+
+    const rawBroll1 = livepeerBrollUrl1 || defaultB1;
+    const rawBroll2 = livepeerBrollUrl2 || defaultB2;
+    const broll1Url = toProxiedUrl(rawBroll1, defaultB1);
+    const broll2Url = toProxiedUrl(rawBroll2, defaultB2);
 
     const brollCuts: BrollCut[] = [
       {

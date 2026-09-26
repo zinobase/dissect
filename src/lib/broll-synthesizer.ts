@@ -9,6 +9,13 @@ export interface StarterKeynote {
   topicText: string;
   category: string;
   audioUrl: string;
+  speakerVideoUrl: string;
+  broll1Url: string;
+  broll2Url: string;
+  broll1Phrase: string;
+  broll2Phrase: string;
+  broll1Prompt: string;
+  broll2Prompt: string;
 }
 
 export const STARTER_KEYNOTES: StarterKeynote[] = [
@@ -20,6 +27,13 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     topicText: "Every data center in the world is transforming into an AI generator factory, running non-stop to produce tokens that represent physical intelligence.",
     category: "Physical AI",
     audioUrl: "/audio/jensen-gtc.mp3",
+    speakerVideoUrl: "/images/speakers/jensen.jpg",
+    broll1Url: "/images/broll/robotics.jpg",
+    broll2Url: "/images/broll/sensor.jpg",
+    broll1Phrase: "AI generator factory",
+    broll2Phrase: "physical intelligence",
+    broll1Prompt: "Cinematic 9:16 vertical view of automated AI server assembly lines in a physical robotics factory, green volumetric lighting",
+    broll2Prompt: "High-resolution autonomous robotic sensors converting physical input into real-time neural activations",
   },
   {
     id: "ilya-world-models",
@@ -29,6 +43,13 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     topicText: "When you scale compute across millions of decentralized GPU nodes, the model stops interpolating and begins synthesizing genuine internal world models.",
     category: "Decentralized Compute",
     audioUrl: "/audio/ilya-world-models.mp3",
+    speakerVideoUrl: "/images/speakers/ilya.jpg",
+    broll1Url: "/images/broll/neural.jpg",
+    broll2Url: "/images/broll/reasoning.jpg",
+    broll1Phrase: "internal world models",
+    broll2Phrase: "synthetic superintelligence",
+    broll1Prompt: "3D bioluminescent neural network graph and deep world model manifold pulsing with synaptic data",
+    broll2Prompt: "Multidimensional holographic lattice synthesizing cognitive representations in deep space",
   },
   {
     id: "karpathy-software2",
@@ -38,6 +59,13 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     topicText: "Photons hit the CMOS sensor, get converted into latent tensors in real time, and direct physical actuators without a single line of heuristic code.",
     category: "Robotic Vision",
     audioUrl: "/audio/karpathy-software2.mp3",
+    speakerVideoUrl: "/images/speakers/karpathy.jpg",
+    broll1Url: "/images/broll/sensor.jpg",
+    broll2Url: "/images/broll/robotics.jpg",
+    broll1Phrase: "CMOS latent tensors",
+    broll2Phrase: "direct physical actuators",
+    broll1Prompt: "First-person camera view of autonomous neural driving vision with green bounding boxes and 3D point cloud overlays",
+    broll2Prompt: "Precision robotic actuators executing trajectory commands without heuristic code",
   },
   {
     id: "altman-reasoning",
@@ -47,6 +75,13 @@ export const STARTER_KEYNOTES: StarterKeynote[] = [
     topicText: "When you give the model test-time compute to think through multi-step hypotheses before answering, the reasoning capability scales exponentially.",
     category: "Test-Time Compute",
     audioUrl: "/audio/altman-reasoning.mp3",
+    speakerVideoUrl: "/images/speakers/sam.jpg",
+    broll1Url: "/images/broll/reasoning.jpg",
+    broll2Url: "/images/broll/neural.jpg",
+    broll1Phrase: "test-time compute",
+    broll2Phrase: "exponential reasoning",
+    broll1Prompt: "Holographic thought-tree graph branching with golden nodes representing test-time compute search",
+    broll2Prompt: "Exponential frontier intelligence curves expanding through high-dimensional conceptual space",
   },
 ];
 
@@ -80,28 +115,29 @@ export function createDynamicHookFromKeynote(keynote: StarterKeynote): VideoHook
     retentionScore: +(95.0 + (parseInt(hexHash, 16) % 45) / 10).toFixed(1),
     viralCategory: keynote.category,
     quoteText: keynote.topicText,
-    speakerVideoUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg",
+    speakerVideoUrl: keynote.speakerVideoUrl || "/images/speakers/jensen.jpg",
     transcript,
     audioUrl: keynote.audioUrl || `/api/tts?id=${keynote.id}&text=${encodeURIComponent(keynote.topicText)}`,
   };
 }
 
 export function getBrollForHook(hookId: string, hook?: VideoHook): BrollCut[] {
-  const found = STARTER_KEYNOTES.find((k) => hookId.includes(k.id));
+  const found = STARTER_KEYNOTES.find(
+    (k) =>
+      hookId.includes(k.id) ||
+      (hook?.sourceSpeaker && k.speaker.toLowerCase().includes(hook.sourceSpeaker.split(" ")[0].toLowerCase()))
+  );
   if (found) {
-    const phrase1 = found.topicText.split(/\s+/).slice(2, 6).join(" ") || "accelerated computing";
-    const phrase2 = found.topicText.split(/\s+/).slice(7, 11).join(" ") || "physical intelligence";
-
     return [
       {
         id: `broll-${found.id}-1`,
         startSec: 2.0,
         endSec: 5.5,
         durationSec: 3.5,
-        triggerPhrase: phrase1,
-        prompt: `Cinematic 9:16 vertical macro shot visualizing ${phrase1}, sharp anamorphic depth of field, 35mm film grain, rim lighting`,
-        videoUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg",
-        posterUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MWUvSkhLMUNBeHVudFBBd29HQ1RZTVdCLmpwZw.969dfc1a43072ab4/JHK1CAxuntPAwoGCTYMWB.jpg",
+        triggerPhrase: found.broll1Phrase,
+        prompt: found.broll1Prompt,
+        videoUrl: found.broll1Url,
+        posterUrl: found.broll1Url,
         orchestratorNode: "agent.livepeer.org/api/mcp/creative (flux-schnell)",
         status: "ready",
         costUsd: 0.0032,
@@ -111,10 +147,10 @@ export function getBrollForHook(hookId: string, hook?: VideoHook): BrollCut[] {
         startSec: 7.5,
         endSec: 11.5,
         durationSec: 4.0,
-        triggerPhrase: phrase2,
-        prompt: `Photorealistic 9:16 vertical cinematic cutaway representing ${phrase2}, volumetric lighting, 8k resolution textures`,
-        videoUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MTYvejRDTFU0THkyRjFoWml5TklJcWEyLmpwZw.660ffbf5b22ed418/z4CLU4Ly2F1hZiyNIIqa2.jpg",
-        posterUrl: "https://agent.livepeer.org/a/aHR0cHM6Ly92M2IuZmFsLm1lZGlhL2ZpbGVzL2IvMGFhYjk3MTYvejRDTFU0THkyRjFoWml5TklJcWEyLmpwZw.660ffbf5b22ed418/z4CLU4Ly2F1hZiyNIIqa2.jpg",
+        triggerPhrase: found.broll2Phrase,
+        prompt: found.broll2Prompt,
+        videoUrl: found.broll2Url,
+        posterUrl: found.broll2Url,
         orchestratorNode: "agent.livepeer.org/api/mcp/creative (flux-schnell)",
         status: "ready",
         costUsd: 0.0032,
