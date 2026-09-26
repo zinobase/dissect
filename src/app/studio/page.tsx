@@ -200,6 +200,9 @@ export default function DissectStudioPage() {
   const activeBrollRef = useRef(activeBroll);
   activeBrollRef.current = activeBroll;
 
+  const currentTimeRef = useRef(currentTime);
+  currentTimeRef.current = currentTime;
+
   // Active spoken word
   const activeWordIndex = selectedHook.transcript.findIndex(
     (w) => currentTime >= w.startSec && currentTime <= w.endSec
@@ -647,8 +650,13 @@ export default function DissectStudioPage() {
         // Color spike if in B-roll zone
         const tSec = (i / bars) * selectedHook.durationSec;
         const isBroll = brollCuts.some((b) => tSec >= b.startSec && tSec <= b.endSec);
+        const isPast = tSec <= currentTimeRef.current;
 
-        ctx.fillStyle = isBroll ? "#84cc16" : "#f59e0b";
+        if (isBroll) {
+          ctx.fillStyle = isPast ? "#84cc16" : "rgba(132, 204, 22, 0.35)";
+        } else {
+          ctx.fillStyle = isPast ? "#f1f5f9" : "rgba(255, 255, 255, 0.16)";
+        }
         ctx.fillRect(x, midY - barH, 2, barH * 2);
       }
 
@@ -839,17 +847,17 @@ export default function DissectStudioPage() {
                 key={k.id}
                 onClick={() => {
                   cinematicAudio.play("toggle");
-                  handleDirectIngest(undefined, k.topicText, k.speaker);
+                  const target = allHooks.find((h) => h.sourceSpeaker.toLowerCase().includes(k.speaker.split(" ")[0].toLowerCase())) || createDynamicHookFromKeynote(k);
+                  handleSelectHook(target);
                 }}
-                disabled={isDirectIngesting}
-                className={`px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 active:scale-95 ${
+                className={`px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
                   isActive
-                    ? "bg-white/10 text-white font-medium border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                    ? "bg-white/12 text-white font-medium border border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_2px_8px_rgba(0,0,0,0.4)]"
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent"
-                } disabled:opacity-50`}
+                }`}
               >
                 {isActive ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] shadow-[0_0_6px_rgba(132,204,22,0.8)]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] shadow-[0_0_8px_rgba(132,204,22,0.9)]" />
                 ) : (
                   <Flame className="w-3 h-3 text-zinc-500" />
                 )}
@@ -862,7 +870,7 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsCustomHookModalOpen(true);
             }}
-            className="px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-zinc-300 font-mono text-[10px] font-medium flex items-center gap-1 transition-all ml-1 active:scale-95"
+            className="px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 text-zinc-300 font-mono text-[10px] font-medium flex items-center gap-1 transition-all ml-1 active:scale-95 cursor-pointer"
             title="Import your own video or paste custom transcript"
           >
             <Plus className="w-3 h-3 text-zinc-400" />
@@ -888,13 +896,16 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("toggle");
                   setLayoutMode(m.id);
                 }}
-                className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer flex items-center gap-1 ${
                   layoutMode === m.id
-                    ? "bg-[#84cc16] text-black font-bold shadow-[0_0_8px_rgba(132,204,22,0.4)]"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    ? "bg-white/15 text-white font-semibold border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_4px_rgba(0,0,0,0.4)]"
+                    : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                 }`}
               >
-                {m.label}
+                {layoutMode === m.id && (
+                  <span className="w-1 h-1 rounded-full bg-[#84cc16] shadow-[0_0_6px_rgba(132,204,22,0.8)]" />
+                )}
+                <span>{m.label}</span>
               </button>
             ))}
           </div>
@@ -905,7 +916,7 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsShortcutsOpen(true);
             }}
-            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#0c1220]/80 hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer active:scale-95"
+            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer active:scale-95"
             title="View Pro NLE Keyboard Shortcuts (?)"
           >
             <Keyboard className="w-3 h-3 text-zinc-400" />
@@ -918,7 +929,7 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsModelDrawerOpen(true);
             }}
-            className="px-3 py-1.5 rounded-full bg-[#0c1220]/80 backdrop-blur-md hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-300 flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer"
+            className="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-[10px] font-mono text-zinc-300 flex items-center gap-1.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] active:scale-95 cursor-pointer"
             title="Livepeer Agent Creative MCP Settings"
           >
             <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
@@ -931,7 +942,7 @@ export default function DissectStudioPage() {
               cinematicAudio.play("click");
               setIsExportOpen(true);
             }}
-            className="px-4 py-1.5 rounded-full bg-white text-black font-heading font-black text-xs hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_2px_12px_rgba(255,255,255,0.15)] flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-black font-heading font-bold text-xs active:scale-95 transition-all shadow-[0_2px_12px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,0.8)] flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-black" />
             <span>Export 1080x1920</span>
@@ -995,7 +1006,7 @@ export default function DissectStudioPage() {
               <button
                 type="submit"
                 disabled={isDirectIngesting || !directInputText.trim()}
-                className="px-3 py-1.5 rounded-lg bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-xs active:scale-95 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(132,204,22,0.35)] disabled:opacity-40 shrink-0 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-gradient-to-b from-[#84cc16] via-[#75b914] to-[#5a920c] hover:from-[#92dc22] hover:to-[#68a60e] text-black font-heading font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(132,204,22,0.35),inset_0_1px_0_rgba(255,255,255,0.4)] border border-[#84cc16]/90 disabled:opacity-40 shrink-0 cursor-pointer"
               >
                 {isDirectIngesting ? (
                   <>
@@ -1053,14 +1064,14 @@ export default function DissectStudioPage() {
                     }}
                     className={`px-2.5 py-1 rounded-lg border text-left whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
                       isSelected
-                        ? "bg-[#84cc16]/15 border-[#84cc16]/50 text-white shadow-[0_0_10px_rgba(132,204,22,0.2)]"
-                        : "bg-white/[0.03] border-white/10 text-zinc-400 hover:border-white/25 hover:text-zinc-200"
+                        ? "bg-white/[0.08] border-white/25 text-white shadow-[0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.15)]"
+                        : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-[#84cc16] shadow-[0_0_6px_rgba(132,204,22,0.8)]" : "bg-zinc-600"}`} />
                     <span className="text-[11px] font-heading font-bold text-white">{h.sourceSpeaker}:</span>
                     <span className="text-[9px] font-mono text-zinc-300 max-w-[110px] truncate">{h.title}</span>
-                    <span className="text-[9px] font-mono text-[#84cc16] font-bold px-1 py-0.2 rounded bg-black/60 border border-[#84cc16]/30">
+                    <span className="text-[9px] font-mono text-[#84cc16] font-bold px-1.5 py-0.5 rounded bg-[#84cc16]/10 border border-[#84cc16]/30">
                       {h.retentionScore}%
                     </span>
                   </button>
@@ -1138,20 +1149,20 @@ export default function DissectStudioPage() {
                     title={`${item.word} · ${formatTime(item.startSec)} (Click seek · Double-click inject B-roll)`}
                     className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer transition-all ${
                       isActive
-                        ? "bg-[#84cc16] text-black font-black shadow-[0_0_16px_rgba(132,204,22,0.8)] scale-105 rounded px-2 py-0.5"
+                        ? "bg-[#84cc16]/20 border border-[#84cc16]/60 text-white font-bold shadow-[0_0_12px_rgba(132,204,22,0.25)] scale-105 rounded-md px-2 py-0.5"
                         : isSearchMatch
                         ? "bg-amber-400/20 text-amber-300 font-bold border border-amber-400/60 shadow-[0_0_8px_rgba(251,191,36,0.3)]"
                         : isPast
                         ? "text-zinc-200 hover:text-white hover:bg-white/10"
                         : "text-zinc-500 hover:text-zinc-300"
-                    } ${item.isKeyTerm ? "font-semibold text-zinc-100 underline decoration-[#84cc16]/50 underline-offset-4" : ""}`}
+                    } ${item.isKeyTerm ? "font-semibold text-zinc-100 underline decoration-[#84cc16]/40 underline-offset-4" : ""}`}
                   >
                     <span>{item.word}</span>
                     {isActive && (
                       <span className="inline-flex items-center gap-0.5 ml-0.5">
-                        <span className="w-0.5 h-2 bg-black animate-pulse" />
-                        <span className="w-0.5 h-3 bg-black animate-pulse delay-75" />
-                        <span className="w-0.5 h-1.5 bg-black animate-pulse delay-150" />
+                        <span className="w-0.5 h-2 bg-[#84cc16] animate-pulse" />
+                        <span className="w-0.5 h-3 bg-[#84cc16] animate-pulse delay-75" />
+                        <span className="w-0.5 h-1.5 bg-[#84cc16] animate-pulse delay-150" />
                       </span>
                     )}
                   </span>
@@ -1210,7 +1221,7 @@ export default function DissectStudioPage() {
                 }}
                 className={`px-2 py-0.5 rounded-full text-[8px] font-mono flex items-center gap-1 transition-all cursor-pointer ${
                   showSafeGuides
-                    ? "bg-[#84cc16]/20 text-[#84cc16] border border-[#84cc16]/40"
+                    ? "bg-white/10 text-white border border-white/20 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                 }`}
                 title="Toggle Platform Safe Area Guidelines"
@@ -1230,9 +1241,9 @@ export default function DissectStudioPage() {
                         cinematicAudio.play("toggle");
                         setPlatformSafeMode(p);
                       }}
-                      className={`px-2 py-0.5 rounded-full uppercase transition-all active:scale-95 cursor-pointer ${
+                      className={`px-2.5 py-0.5 rounded-full uppercase transition-all active:scale-95 cursor-pointer ${
                         isActive
-                          ? "bg-[#84cc16] text-black font-bold shadow-[0_0_8px_rgba(132,204,22,0.4)]"
+                          ? "bg-white text-black font-bold shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                           : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                       }`}
                     >
@@ -1410,7 +1421,7 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("toggle");
                   setIsPlaying(!isPlaying);
                 }}
-                className="px-3 py-1 rounded-full bg-[#84cc16] text-black font-bold text-[9px] flex items-center gap-1 active:scale-95 shadow-[0_0_10px_rgba(132,204,22,0.4)] cursor-pointer"
+                className="px-3.5 py-1 rounded-full bg-white hover:bg-zinc-100 text-black font-heading font-bold text-[10px] flex items-center gap-1.5 active:scale-95 shadow-[0_2px_10px_rgba(255,255,255,0.25),inset_0_1px_0_rgba(255,255,255,0.8)] cursor-pointer"
                 title="Play/Pause (Space)"
               >
                 {isPlaying ? <Pause className="w-2.5 h-2.5 fill-current" /> : <Play className="w-2.5 h-2.5 fill-current" />}
@@ -1433,7 +1444,7 @@ export default function DissectStudioPage() {
                   setIsMuted(!isMuted);
                 }}
                 className={`p-1 rounded-full transition-all active:scale-95 cursor-pointer ${
-                  isMuted ? "text-rose-400 bg-rose-500/20" : "text-[#84cc16] hover:text-white"
+                  isMuted ? "text-rose-400 bg-rose-500/20" : "text-zinc-400 hover:text-white"
                 }`}
                 title="Mute / Unmute (M)"
               >
@@ -1446,14 +1457,14 @@ export default function DissectStudioPage() {
                   cinematicAudio.play("toggle");
                   setIsLooping(!isLooping);
                 }}
-                className={`px-2 py-0.5 rounded-full text-[8.5px] font-mono flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
+                className={`px-2.5 py-0.5 rounded-full text-[8.5px] font-mono flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
                   isLooping
-                    ? "bg-[#84cc16]/20 text-[#84cc16] border border-[#84cc16]/40 shadow-[0_0_8px_rgba(132,204,22,0.2)]"
+                    ? "bg-white/10 text-white border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                     : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                 }`}
                 title={isLooping ? "Loop Playback (Enabled)" : "Play Once (Loop Disabled)"}
               >
-                <Repeat className="w-2.5 h-2.5" />
+                <Repeat className={`w-2.5 h-2.5 ${isLooping ? "text-[#84cc16]" : "text-zinc-500"}`} />
                 <span>{isLooping ? "Loop" : "Once"}</span>
               </button>
             </div>
@@ -1503,12 +1514,15 @@ export default function DissectStudioPage() {
                     }}
                     className={`flex-1 py-1 rounded-full transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
                       isActive
-                        ? "bg-[#84cc16] text-black font-bold shadow-[0_0_10px_rgba(132,204,22,0.4)]"
-                        : "text-zinc-400 hover:text-zinc-200"
+                        ? "bg-white/10 text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_2px_8px_rgba(0,0,0,0.4)] border border-white/20"
+                        : "text-zinc-400 hover:text-zinc-200 border border-transparent"
                     }`}
                   >
-                    <Icon className="w-3 h-3" />
+                    <Icon className={`w-3 h-3 ${isActive ? "text-[#84cc16]" : "text-zinc-400"}`} />
                     <span>{tab.label}</span>
+                    {isActive && (
+                      <span className="w-1 h-1 rounded-full bg-[#84cc16] shadow-[0_0_6px_rgba(132,204,22,0.8)]" />
+                    )}
                   </button>
                 );
               })}
@@ -1557,13 +1571,14 @@ export default function DissectStudioPage() {
                           cinematicAudio.play("toggle");
                           handleOptimizeStudioPrompt(key);
                         }}
-                        className={`py-1 rounded-full border text-[8.5px] font-mono transition-all text-center active:scale-95 cursor-pointer ${
+                        className={`py-1 rounded-full border text-[8.5px] font-mono transition-all text-center active:scale-95 cursor-pointer flex items-center justify-center gap-1 ${
                           isSelected
-                            ? "bg-[#84cc16]/20 border-[#84cc16]/60 text-white font-medium shadow-[0_0_8px_rgba(132,204,22,0.3)]"
+                            ? "bg-white/10 border-white/25 text-white font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
                             : "bg-white/[0.02] border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
                         }`}
                       >
-                        {label}
+                        {isSelected && <span className="w-1 h-1 rounded-full bg-[#84cc16] shadow-[0_0_4px_rgba(132,204,22,0.8)]" />}
+                        <span>{label}</span>
                       </button>
                     );
                   })}
@@ -1607,7 +1622,7 @@ export default function DissectStudioPage() {
                       handleSynthesizeBroll();
                     }}
                     disabled={isSynthesizing}
-                    className="py-2 rounded-full bg-[#84cc16] hover:bg-[#99e62e] text-black font-heading font-black text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(132,204,22,0.35)] active:scale-95 transition-all disabled:opacity-40 cursor-pointer"
+                    className="py-2.5 rounded-full bg-gradient-to-b from-[#84cc16] via-[#75b914] to-[#5a920c] hover:from-[#92dc22] hover:to-[#68a60e] text-black font-heading font-bold text-xs flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(132,204,22,0.35),inset_0_1px_0_rgba(255,255,255,0.4)] border border-[#84cc16]/90 active:scale-95 transition-all disabled:opacity-40 cursor-pointer"
                   >
                     {isSynthesizing ? (
                       <>
@@ -1628,10 +1643,10 @@ export default function DissectStudioPage() {
                       handleReimagineTake(selectedDirectorialStyle);
                     }}
                     disabled={isSynthesizing}
-                    className="py-2 rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 text-zinc-200 font-heading font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
+                    className="py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.09] border border-white/15 text-white font-heading font-semibold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-40 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.3)] cursor-pointer"
                     title="Generate an instant alternate take with current directorial lens on Livepeer MCP"
                   >
-                    <Wand2 className="w-3.5 h-3.5 text-zinc-400" />
+                    <Wand2 className="w-3.5 h-3.5 text-zinc-300" />
                     <span>Re-Imagine Take</span>
                   </button>
                 </div>
@@ -1910,10 +1925,10 @@ export default function DissectStudioPage() {
                 cinematicAudio.play("click");
                 handleSynthesizeBroll();
               }}
-              className="px-2.5 py-0.5 rounded-full bg-[#84cc16]/10 hover:bg-[#84cc16]/20 border border-[#84cc16]/30 text-[#84cc16] text-[8.5px] font-mono flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+              className="px-3 py-1 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white text-[8.5px] font-mono flex items-center gap-1.5 active:scale-95 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] cursor-pointer"
               title="Inject AI B-Roll cut at current playhead position"
             >
-              <Zap className="w-2.5 h-2.5" />
+              <Zap className="w-2.5 h-2.5 text-[#84cc16]" />
               <span>+ Cut at Playhead</span>
             </button>
             
