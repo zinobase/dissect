@@ -955,24 +955,6 @@ export default function DissectStudioPage() {
         </div>
       </header>
 
-      {/* Studio Camera & Codec Telemetry Bar */}
-      <div className="h-5 bg-[#030407] border-b border-white/[0.06] px-4 flex items-center justify-between text-[8px] font-mono text-zinc-400 select-none shrink-0 z-20">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-zinc-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16] animate-pulse" />
-            <span className="font-bold text-white">DISSECT ENGINE 2.4</span>
-          </span>
-          <span className="text-zinc-500 hidden sm:inline">PRORES 422 HQ</span>
-          <span className="text-zinc-500 hidden sm:inline">1080x1920 (9:16 VERTICAL)</span>
-          <span className="text-zinc-500 hidden md:inline">COLOR: REC.709 10-BIT</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-zinc-500 hidden md:inline">AUDIO: 48kHz 24-BIT STEREO</span>
-          <span className="text-zinc-500 hidden sm:inline">LIVEPEER AGENT MCP: ACTIVE</span>
-          <span className="text-[#84cc16] font-bold">LATENCY: 12ms</span>
-        </div>
-      </div>
-
       {/* 2. PRO WORKSPACE: RESPONSIVE 3-COLUMN STUDIO / SCRIPT FOCUS / STAGE FOCUS */}
       <div className="flex-1 grid grid-cols-12 min-h-0 overflow-hidden divide-x divide-white/10">
         
@@ -999,46 +981,36 @@ export default function DissectStudioPage() {
             </div>
           </div>
 
-          {/* Sleek Always-Visible Dissect Input Bar */}
-          <div className="p-2 rounded-xl bg-[#090c14] border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.4)] shrink-0 space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] font-mono">
-              <span className="text-zinc-200 font-semibold flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-[#84cc16]" />
-                <span>Dissect Video / Monologue:</span>
-              </span>
-              <span className="text-[8.5px] font-mono text-zinc-400 px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/10">
-                Livepeer Agent
-              </span>
-            </div>
-
-            <form onSubmit={handleDirectIngest} className="flex items-center gap-1.5">
+          {/* Streamlined Monologue Ingestion Bar */}
+          <div className="shrink-0 space-y-1">
+            <form onSubmit={handleDirectIngest} className="flex items-center gap-1.5 p-1 bg-[#090c14] rounded-xl border border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
               <input
                 type="text"
                 value={directSpeakerName}
                 onChange={(e) => setDirectSpeakerName(e.target.value)}
-                placeholder="Speaker..."
-                className="w-20 bg-black/60 border border-white/10 focus:border-[#84cc16]/50 text-xs font-mono text-white px-2 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)] shrink-0"
+                placeholder="Speaker"
+                className="w-18 bg-transparent text-[11px] font-mono text-white px-2 py-1 placeholder:text-zinc-500 focus:outline-none shrink-0 border-r border-white/10"
               />
               <input
                 type="text"
                 value={directInputText}
                 onChange={(e) => setDirectInputText(e.target.value)}
-                placeholder="Paste YouTube URL or monologue text..."
-                className="flex-1 min-w-0 bg-black/60 border border-white/10 focus:border-[#84cc16]/50 text-xs font-mono text-white px-2.5 py-1.5 rounded-lg focus:outline-none placeholder:text-zinc-500 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]"
+                placeholder="Paste video URL or monologue..."
+                className="flex-1 bg-transparent text-[11px] font-mono text-white px-2 py-1 placeholder:text-zinc-500 focus:outline-none min-w-0"
               />
               <button
                 type="submit"
                 disabled={isDirectIngesting || !directInputText.trim()}
-                className="px-3.5 py-1.5 rounded-lg bg-gradient-to-b from-[#84cc16] via-[#75b914] to-[#5a920c] hover:from-[#92dc22] hover:to-[#68a60e] text-black font-heading font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(132,204,22,0.35),inset_0_1px_0_rgba(255,255,255,0.4)] border border-[#84cc16]/90 disabled:opacity-40 shrink-0 cursor-pointer"
+                className="px-3 py-1 rounded-lg bg-[#84cc16] hover:bg-[#99e61c] text-black font-heading font-bold text-[10.5px] active:scale-95 transition-all flex items-center gap-1 shrink-0 cursor-pointer disabled:opacity-40 shadow-[0_1px_6px_rgba(132,204,22,0.3)]"
               >
                 {isDirectIngesting ? (
                   <>
-                    <RefreshCw className="w-3 h-3 animate-spin text-black" />
-                    <span className="hidden sm:inline">Dissecting...</span>
+                    <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Scissors className="w-3 h-3 text-black" />
+                    <Scissors className="w-2.5 h-2.5" />
                     <span>Dissect</span>
                   </>
                 )}
@@ -1063,44 +1035,6 @@ export default function DissectStudioPage() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Detected High-Retention Hooks Carousel */}
-          <div className="shrink-0 space-y-1">
-            <div className="flex items-center justify-between text-[9.5px] font-mono text-zinc-400">
-              <span className="uppercase tracking-wider font-semibold text-zinc-300 flex items-center gap-1">
-                <Scissors className="w-2.5 h-2.5 text-[#84cc16]" />
-                <span>Detected Hooks ({allHooks.length})</span>
-              </span>
-              <span className="text-[8.5px] text-zinc-500 font-mono">Click to preview</span>
-            </div>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-              {allHooks.map((h) => {
-                const isSelected = selectedHook.id === h.id;
-                return (
-                  <button
-                    key={h.id}
-                    type="button"
-                    onClick={() => {
-                      handleSelectHook(h);
-                      cinematicAudio.play("click");
-                    }}
-                    className={`px-2.5 py-1 rounded-lg border text-left whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
-                      isSelected
-                        ? "bg-white/[0.08] border-white/25 text-white shadow-[0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.15)]"
-                        : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-[#84cc16] shadow-[0_0_6px_rgba(132,204,22,0.8)]" : "bg-zinc-600"}`} />
-                    <span className="text-[11px] font-heading font-bold text-white">{h.sourceSpeaker}:</span>
-                    <span className="text-[9px] font-mono text-zinc-300 max-w-[110px] truncate">{h.title}</span>
-                    <span className="text-[9px] font-mono text-[#84cc16] font-bold px-1.5 py-0.5 rounded bg-[#84cc16]/10 border border-[#84cc16]/30">
-                      {h.retentionScore}%
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           {/* HERO OF LEFT COLUMN: INTERACTIVE WORD-LEVEL TRANSCRIPT (MAXIMIZED VERTICAL SPACE) */}
@@ -1192,28 +1126,6 @@ export default function DissectStudioPage() {
                 );
               })}
             </div>
-          </div>
-
-          {/* Compact Virality & Retention Telemetry Mini-Strip */}
-          <div className="p-2 rounded-xl bg-[#090c14] border border-white/10 shrink-0 flex items-center justify-between text-[9px] font-mono">
-            <div className="flex items-center gap-3">
-              <span className="text-zinc-300 font-bold flex items-center gap-1">
-                <Flame className="w-3 h-3 text-[#84cc16]" />
-                <span>{selectedHook.retentionScore}% Viral</span>
-              </span>
-              <span className="text-zinc-400 hidden sm:inline">1 cut / 3.2s</span>
-              <span className="text-emerald-400 font-bold">+38% Watch-Through</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                cinematicAudio.play("toggle");
-                setInspectorTab("retention");
-              }}
-              className="text-[#84cc16] hover:text-[#a3e635] flex items-center gap-1 cursor-pointer font-bold"
-            >
-              <span>Curve →</span>
-            </button>
           </div>
 
         </div>
@@ -1421,89 +1333,6 @@ export default function DissectStudioPage() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Precision Transport Dock Directly Under Stage */}
-          <div className="w-full bg-[#090c14] border border-white/10 rounded-xl p-2 shrink-0 flex items-center justify-between text-xs font-mono">
-            <span className="text-white font-bold tracking-wider text-[11px]">
-              {formatTime(currentTime)} <span className="text-zinc-500 font-normal text-[9px]">/ {formatTime(selectedHook.durationSec)}</span>
-            </span>
-
-            <div className="flex items-center gap-1 bg-[#0c1220]/80 p-0.5 rounded-full border border-white/10">
-              <button
-                onClick={() => {
-                  cinematicAudio.play("click");
-                  handleSeek(Math.max(0, currentTime - 2));
-                }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                title="Rewind 2s (J)"
-              >
-                <SkipBack className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => {
-                  cinematicAudio.play("toggle");
-                  setIsPlaying(!isPlaying);
-                }}
-                className="px-3.5 py-1 rounded-full bg-white hover:bg-zinc-100 text-black font-heading font-bold text-[10px] flex items-center gap-1.5 active:scale-95 shadow-[0_2px_10px_rgba(255,255,255,0.25),inset_0_1px_0_rgba(255,255,255,0.8)] cursor-pointer"
-                title="Play/Pause (Space)"
-              >
-                {isPlaying ? <Pause className="w-2.5 h-2.5 fill-current" /> : <Play className="w-2.5 h-2.5 fill-current" />}
-                <span>{isPlaying ? "Pause" : "Play"}</span>
-              </button>
-              <button
-                onClick={() => {
-                  cinematicAudio.play("click");
-                  handleSeek(Math.min(selectedHook.durationSec, currentTime + 2));
-                }}
-                className="p-1 rounded-full text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                title="Forward 2s (L)"
-              >
-                <SkipForward className="w-3 h-3" />
-              </button>
-              <div className="w-[1px] h-3 bg-white/15 mx-0.5" />
-              <button
-                onClick={() => {
-                  cinematicAudio.play("toggle");
-                  setIsMuted(!isMuted);
-                }}
-                className={`p-1 rounded-full transition-all active:scale-95 cursor-pointer ${
-                  isMuted ? "text-rose-400 bg-rose-500/20" : "text-zinc-400 hover:text-white"
-                }`}
-                title="Mute / Unmute (M)"
-              >
-                {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
-              </button>
-              <div className="w-[1px] h-3 bg-white/15 mx-0.5" />
-              <button
-                type="button"
-                onClick={() => {
-                  cinematicAudio.play("toggle");
-                  setIsLooping(!isLooping);
-                }}
-                className={`px-2.5 py-0.5 rounded-full text-[8.5px] font-mono flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
-                  isLooping
-                    ? "bg-white/10 text-white border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-                    : "text-zinc-500 hover:text-zinc-300 border border-transparent"
-                }`}
-                title={isLooping ? "Loop Playback (Enabled)" : "Play Once (Loop Disabled)"}
-              >
-                <Repeat className={`w-2.5 h-2.5 ${isLooping ? "text-[#84cc16]" : "text-zinc-500"}`} />
-                <span>{isLooping ? "Loop" : "Once"}</span>
-              </button>
-            </div>
-
-            <button
-              onClick={() => {
-                cinematicAudio.play("click");
-                handleSynthesizeBroll();
-              }}
-              className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[#84cc16] text-[9px] font-mono flex items-center gap-1 cursor-pointer active:scale-95"
-              title="Cut at current playhead"
-            >
-              <Zap className="w-2.5 h-2.5" />
-              <span>+ Cut</span>
-            </button>
           </div>
 
         </div>
