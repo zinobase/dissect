@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
+  other: {
+    "ory-verify": "orynth-8286ae8aa2864e02bf30f722cbd87ae4",
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <meta name="ory-verify" content="orynth-8286ae8aa2864e02bf30f722cbd87ae4" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
